@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWB Kids | Dashboard de Tráfego</title>
+<link rel="stylesheet" href="/css/styles.css">
+<style>
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login-card { width: 100%; max-width: 360px; background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius); padding: 32px; text-align: center; }
+  .login-card h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  .login-card p { color: var(--color-muted); font-size: 0.85rem; margin-bottom: 20px; }
+  .login-card input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: 0.95rem; margin-bottom: 12px; }
+  .login-card button { width: 100%; padding: 10px 12px; border-radius: 8px; border: none; background: var(--color-primary); color: #fff; font-weight: 600; cursor: pointer; font-size: 0.95rem; }
+  .login-card button:disabled { opacity: 0.6; cursor: default; }
+  .login-error { color: var(--color-danger); font-size: 0.82rem; min-height: 18px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="login-wrap">
+    <form class="login-card" id="login-form">
+      <h1>CWB Kids</h1>
+      <p>Dashboard de tráfego — acesso restrito</p>
+      <input type="password" id="password" placeholder="Senha" autofocus required>
+      <button type="submit" id="submit-btn">Entrar</button>
+      <div class="login-error" id="login-error"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const errorEl = document.getElementById('login-error');
+    const btn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+      try {
+        const password = document.getElementById('password').value;
+        const resp = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password }),
+        });
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          throw new Error(data.error || 'Senha incorreta.');
+        }
+        window.location.href = '/index.html';
+      } catch (err) {
+        errorEl.textContent = err.message;
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+      }
+    });
+  </script>
+</body>
+</html>

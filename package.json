@@ -1,0 +1,10 @@
+{
+  "name": "cwbkids-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dashboard de tráfego (Meta Ads, Google Ads, Marketplace) da CWB Kids",
+  "engines": {
+    "node": ">=18"
+  }
+}

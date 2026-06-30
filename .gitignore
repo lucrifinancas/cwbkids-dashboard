@@ -1,0 +1,8 @@
+node_modules/
+.vercel/
+.env
+.env.local
+
+# Arquivos de referência de identidade visual do usuário (relatórios antigos) —
+# usados só para extrair a paleta de cores, não fazem parte do app publicado.
+identidade-visual/

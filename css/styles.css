@@ -1,0 +1,161 @@
+/* ──────────────────────────────────────────────────────────────
+   Paleta de cores — CWB Kids
+   Primária: #48b8c9 (turquesa) | Acento: #ed4c81 (rosa) | Branco: #ffffff
+   Derivações e regras de uso em identidade-visual/cores.md
+   ────────────────────────────────────────────────────────────── */
+:root {
+  --color-primary: #48b8c9;
+  --color-primary-soft: #e8f7fa;
+  --color-accent: #ed4c81;
+  --color-bg: #f4fbfc;
+  --color-card: #ffffff;
+  --color-text: #1c3a40;
+  --color-muted: #6a9ea8;
+  --color-border: #cce9ee;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ed4c81;
+  --radius: 12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+a { color: inherit; }
+
+/* ── Topbar ── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; border-bottom: 1px solid var(--color-border);
+  position: sticky; top: 0; background: var(--color-bg); z-index: 10;
+}
+.topbar .brand { font-weight: 700; font-size: 1.1rem; }
+.topbar .brand span { color: var(--color-primary); }
+.topbar button#logout-btn {
+  background: transparent; border: 1px solid var(--color-border); color: var(--color-muted);
+  border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer;
+}
+.topbar button#logout-btn:hover { color: var(--color-text); border-color: var(--color-primary); }
+
+/* ── Tabs de navegação ── */
+.tabs {
+  display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+.tabs button {
+  background: transparent; border: none; color: var(--color-muted);
+  padding: 12px 16px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.tabs button:hover { color: var(--color-text); }
+.tabs button.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Section titles ── */
+.section-title {
+  font-size: 1.05rem; font-weight: 600; margin: 28px 0 14px;
+  padding-bottom: 8px; border-bottom: 2px solid var(--color-border);
+}
+.section-title:first-child { margin-top: 0; }
+
+/* ── KPI bar ── */
+.kpi-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.kpi {
+  background: var(--color-card); border-radius: var(--radius);
+  padding: 16px; text-align: center; border: 1px solid var(--color-border);
+}
+.kpi .label { font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.kpi .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+.kpi .delta { font-size: 0.75rem; margin-top: 4px; font-weight: 600; }
+.kpi .delta.up { color: var(--color-success); }
+.kpi .delta.down { color: var(--color-danger); }
+
+/* ── Card grid ── */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.card { background: var(--color-card); border-radius: var(--radius); padding: 18px; border: 1px solid var(--color-border); }
+.card .card-label { font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.card .card-value { font-size: 1.3rem; font-weight: 700; margin-top: 6px; }
+
+/* ── Chart grid ── */
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-card, .chart-full {
+  background: var(--color-card); border-radius: var(--radius);
+  padding: 18px; border: 1px solid var(--color-border);
+}
+.chart-full { margin-top: 16px; }
+.chart-card h3, .chart-full h3 { font-size: 0.85rem; color: var(--color-muted); margin-bottom: 12px; font-weight: 600; }
+.chart-card canvas { width: 100% !important; max-height: 280px; }
+.chart-full canvas { width: 100% !important; height: 260px; }
+
+/* ── Funil ── */
+.funnel { display: flex; flex-direction: column; gap: 8px; }
+.funnel-step { display: grid; grid-template-columns: 140px 1fr 90px; align-items: center; gap: 10px; font-size: 0.82rem; }
+.funnel-step .bar { background: var(--color-border); border-radius: 6px; height: 22px; overflow: hidden; }
+.funnel-step .bar-fill { background: var(--color-primary); height: 100%; border-radius: 6px; }
+.funnel-step .rate { color: var(--color-muted); text-align: right; }
+
+/* ── Tabela ── */
+.table-wrap { overflow-x: auto; margin-top: 16px; }
+table { width: 100%; border-collapse: collapse; background: var(--color-card); border-radius: var(--radius); overflow: hidden; }
+th, td { padding: 10px 14px; text-align: right; font-size: 0.82rem; border-bottom: 1px solid var(--color-border); }
+th { background: var(--color-primary-soft); color: var(--color-muted); cursor: pointer; user-select: none; white-space: nowrap; }
+th:hover { color: var(--color-primary); }
+th::after { content: ' \25B4\25BE'; font-size: 0.6rem; opacity: 0.4; }
+th.asc::after { content: ' \25B4'; opacity: 1; color: var(--color-primary); }
+th.desc::after { content: ' \25BE'; opacity: 1; color: var(--color-primary); }
+td:first-child, th:first-child { text-align: left; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--color-primary-soft); }
+
+.detail-toggle {
+  background: transparent; border: 1px solid var(--color-border); color: var(--color-muted);
+  border-radius: 8px; padding: 8px 14px; font-size: 0.82rem; cursor: pointer; margin-top: 16px;
+}
+.detail-toggle:hover { color: var(--color-text); border-color: var(--color-primary); }
+.detail-section { display: none; margin-top: 8px; }
+.detail-section.open { display: block; }
+
+/* ── Insights ── */
+.insights-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 16px; }
+.insight-card {
+  background: var(--color-card); border-radius: var(--radius);
+  padding: 16px 20px; border: 1px solid var(--color-border); border-left: 4px solid var(--color-primary);
+}
+.insight-card.success { border-left-color: var(--color-success); }
+.insight-card.warning { border-left-color: var(--color-warning); }
+.insight-card.danger { border-left-color: var(--color-danger); }
+.insight-card h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+.insight-card p { font-size: 0.82rem; color: var(--color-muted); }
+
+/* ── Filtro de período ── */
+.period-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.period-bar select, .period-bar button {
+  background: var(--color-card); border: 1px solid var(--color-border); color: var(--color-text);
+  border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;
+}
+.period-bar button { cursor: pointer; }
+.period-bar button:hover { border-color: var(--color-primary); }
+
+.empty-state { color: var(--color-muted); font-size: 0.85rem; padding: 24px; text-align: center; }
+
+@media (max-width: 768px) {
+  main { padding: 16px; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .funnel-step { grid-template-columns: 90px 1fr 60px; }
+}
+
+@media print {
+  .topbar, .tabs, .period-bar button, .detail-toggle { display: none !important; }
+  body { background: #fff; color: #1c3a40; }
+  .kpi, .card, .chart-card, .chart-full, table, .insight-card { border-color: #cce9ee; background: #fff; }
+}

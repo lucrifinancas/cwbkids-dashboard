@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWB Kids | Dashboard de Tráfego</title>
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">CWB <span>Kids</span> — Tráfego</div>
+  <button id="logout-btn">Sair</button>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="geral" class="active">Dados Gerais</button>
+  <button data-tab="meta">Meta Ads</button>
+  <button data-tab="google">Google Ads</button>
+  <button data-tab="marketplace">Marketplace</button>
+  <button data-tab="rel-semanal">Relatórios Semanais</button>
+  <button data-tab="rel-mensal">Relatórios Mensais</button>
+</nav>
+
+<main>
+
+  <!-- ════════════ DADOS GERAIS ════════════ -->
+  <section class="tab-panel active" id="panel-geral">
+    <h2 class="section-title">Visão Geral</h2>
+    <div class="kpi-bar" id="kpi-geral"></div>
+
+    <h2 class="section-title">Investimento por Canal</h2>
+    <div class="chart-grid">
+      <div class="chart-card"><h3>Investimento por Canal</h3><canvas id="chart-geral-canal"></canvas></div>
+      <div class="chart-card"><h3>Compras por Canal</h3><canvas id="chart-geral-compras"></canvas></div>
+    </div>
+
+    <h2 class="section-title">Evolução Diária</h2>
+    <div class="chart-full"><h3>Investimento e Compras — Meta + Google</h3><canvas id="chart-geral-evolucao"></canvas></div>
+  </section>
+
+  <!-- ════════════ META ADS ════════════ -->
+  <section class="tab-panel" id="panel-meta">
+    <h2 class="section-title">Resumo Meta Ads</h2>
+    <div class="kpi-bar" id="kpi-meta"></div>
+
+    <h2 class="section-title">Tendência</h2>
+    <div class="chart-full"><h3>Investimento e Compras por dia</h3><canvas id="chart-meta-tendencia"></canvas></div>
+
+    <h2 class="section-title">Funil de Conversão</h2>
+    <div class="funnel" id="funnel-meta"></div>
+
+    <button class="detail-toggle" data-target="detail-meta">Ver detalhamento (campanhas, conjuntos, anúncios)</button>
+    <div class="detail-section" id="detail-meta">
+      <h2 class="section-title">Campanhas</h2>
+      <div class="table-wrap"><table id="table-meta-campanhas"><thead></thead><tbody></tbody></table></div>
+      <h2 class="section-title">Conjuntos de Anúncio</h2>
+      <div class="table-wrap"><table id="table-meta-conjuntos"><thead></thead><tbody></tbody></table></div>
+      <h2 class="section-title">Anúncios</h2>
+      <div class="table-wrap"><table id="table-meta-anuncios"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ════════════ GOOGLE ADS ════════════ -->
+  <section class="tab-panel" id="panel-google">
+    <h2 class="section-title">Resumo Google Ads</h2>
+    <div class="kpi-bar" id="kpi-google"></div>
+
+    <h2 class="section-title">Tendência</h2>
+    <div class="chart-full"><h3>Investimento e Compras por dia</h3><canvas id="chart-google-tendencia"></canvas></div>
+
+    <button class="detail-toggle" data-target="detail-google">Ver detalhamento (campanhas, grupos, anúncios)</button>
+    <div class="detail-section" id="detail-google">
+      <h2 class="section-title">Campanhas</h2>
+      <div class="table-wrap"><table id="table-google-campanhas"><thead></thead><tbody></tbody></table></div>
+      <h2 class="section-title">Grupos de Anúncios</h2>
+      <div class="table-wrap"><table id="table-google-grupos"><thead></thead><tbody></tbody></table></div>
+      <h2 class="section-title">Anúncios</h2>
+      <div class="table-wrap"><table id="table-google-anuncios"><thead></thead><tbody></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- ════════════ MARKETPLACE ════════════ -->
+  <section class="tab-panel" id="panel-marketplace">
+    <h2 class="section-title">Resumo Marketplace</h2>
+    <div class="kpi-bar" id="kpi-marketplace"></div>
+
+    <h2 class="section-title">Vendas por Marketplace</h2>
+    <div class="table-wrap"><table id="table-marketplace"><thead></thead><tbody></tbody></table></div>
+  </section>
+
+  <!-- ════════════ RELATÓRIO SEMANAL ════════════ -->
+  <section class="tab-panel" id="panel-rel-semanal">
+    <div class="period-bar">
+      <select id="select-semana"></select>
+      <button id="print-semanal">Imprimir / Exportar PDF</button>
+    </div>
+    <div class="kpi-bar" id="kpi-rel-semanal"></div>
+    <h2 class="section-title">Evolução</h2>
+    <div class="chart-full"><h3>Investimento e Compras na semana</h3><canvas id="chart-rel-semanal"></canvas></div>
+    <h2 class="section-title">Top Campanhas</h2>
+    <div class="table-wrap"><table id="table-rel-semanal"><thead></thead><tbody></tbody></table></div>
+    <h2 class="section-title">Insights</h2>
+    <div class="insights-grid" id="insights-rel-semanal"></div>
+  </section>
+
+  <!-- ════════════ RELATÓRIO MENSAL ════════════ -->
+  <section class="tab-panel" id="panel-rel-mensal">
+    <div class="period-bar">
+      <select id="select-mes"></select>
+      <button id="print-mensal">Imprimir / Exportar PDF</button>
+    </div>
+    <div class="kpi-bar" id="kpi-rel-mensal"></div>
+    <h2 class="section-title">Evolução</h2>
+    <div class="chart-full"><h3>Investimento e Compras no mês</h3><canvas id="chart-rel-mensal"></canvas></div>
+    <h2 class="section-title">Top Campanhas</h2>
+    <div class="table-wrap"><table id="table-rel-mensal"><thead></thead><tbody></tbody></table></div>
+    <h2 class="section-title">Insights</h2>
+    <div class="insights-grid" id="insights-rel-mensal"></div>
+  </section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
