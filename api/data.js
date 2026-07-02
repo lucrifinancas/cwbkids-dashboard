@@ -39,8 +39,12 @@ export default async function handler(req, res) {
   try {
     const entries = await Promise.all(
       Object.entries(TABS).map(async ([key, tab]) => {
-        const rows = await getValues(sheetId, `${tab}!A1:Z10000`);
-        return [key, rowsToObjects(rows)];
+        try {
+          const rows = await getValues(sheetId, `${tab}!A1:AA10000`);
+          return [key, rowsToObjects(rows)];
+        } catch {
+          return [key, []];
+        }
       })
     );
     const payload = Object.fromEntries(entries);
