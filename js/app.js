@@ -33,7 +33,11 @@ function isoDate(d) { return d.toISOString().slice(0, 10); }
 async function fetchData() {
   const resp = await fetch("/api/data");
   if (resp.status === 401) { window.location.href = "/login.html"; return null; }
-  if (!resp.ok) throw new Error(`Erro ao carregar dados (${resp.status})`);
+  if (!resp.ok) {
+    let detail = "";
+    try { detail = (await resp.json()).error || ""; } catch {}
+    throw new Error(`Erro ${resp.status}: ${detail || resp.statusText}`);
+  }
   return resp.json();
 }
 
