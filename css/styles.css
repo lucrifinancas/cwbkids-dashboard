@@ -137,7 +137,31 @@ tr:hover td { background: var(--color-primary-soft); }
 .insight-card h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
 .insight-card p { font-size: 0.82rem; color: var(--color-muted); }
 
-/* ── Filtro de período ── */
+/* ── Filtro de data global ── */
+.date-filter-bar {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 24px; background: var(--color-card);
+  border-bottom: 1px solid var(--color-border);
+}
+.filter-label { font-size: 0.82rem; font-weight: 600; color: var(--color-muted); }
+.filter-sep { font-size: 0.82rem; color: var(--color-muted); }
+.date-filter-bar input[type="date"] {
+  background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);
+  border-radius: 8px; padding: 6px 10px; font-size: 0.82rem; cursor: pointer;
+}
+.date-filter-bar input[type="date"]:focus { outline: none; border-color: var(--color-primary); }
+.date-filter-bar button {
+  background: var(--color-primary); border: none; color: #fff;
+  border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+}
+.date-filter-bar button:hover { opacity: 0.85; }
+.date-filter-bar button.filter-clear {
+  background: transparent; border: 1px solid var(--color-border); color: var(--color-muted);
+}
+.date-filter-bar button.filter-clear:hover { border-color: var(--color-primary); color: var(--color-text); opacity: 1; }
+.filter-status { font-size: 0.78rem; color: var(--color-primary); font-weight: 600; }
+
+/* ── Filtro de período (relatórios) ── */
 .period-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
 .period-bar select, .period-bar button {
   background: var(--color-card); border: 1px solid var(--color-border); color: var(--color-text);

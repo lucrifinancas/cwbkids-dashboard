@@ -6,6 +6,18 @@
 
 let DATA = null;
 const sortState = {};
+let dateFilter = { from: null, to: null };
+
+function applyDateFilter(rows) {
+  if (!dateFilter.from && !dateFilter.to) return rows;
+  return rows.filter((r) => {
+    const d = parseDateBR(r["DATA"]);
+    if (!d) return true;
+    if (dateFilter.from && d < dateFilter.from) return false;
+    if (dateFilter.to   && d > dateFilter.to)   return false;
+    return true;
+  });
+}
 
 /* ---------------- Formatação ---------------- */
 const parseNum = (v) => {
@@ -255,10 +267,10 @@ function setupTabs() {
 
 /* ---------------- Aba: Dados Gerais ---------------- */
 function renderGeral() {
-  const metaRows    = DATA.metaCampanhas;
-  const googleRows  = DATA.googleCampanhas;
-  const marketRows  = DATA.marketplace;
-  const orgRows     = DATA.organico;
+  const metaRows    = applyDateFilter(DATA.metaCampanhas);
+  const googleRows  = applyDateFilter(DATA.googleCampanhas);
+  const marketRows  = applyDateFilter(DATA.marketplace);
+  const orgRows     = applyDateFilter(DATA.organico);
   const orgSeries   = computeOrganicoSeries(orgRows, metaRows, googleRows);
 
   const k = consolidatedKpis([...metaRows, ...googleRows]);
@@ -306,9 +318,9 @@ function renderGeral() {
 
 /* ---------------- Aba: Meta Ads ---------------- */
 function renderMeta() {
-  const camp = DATA.metaCampanhas;
-  const conj = DATA.metaConjuntos;
-  const anun = DATA.metaAnuncios;
+  const camp = applyDateFilter(DATA.metaCampanhas);
+  const conj = applyDateFilter(DATA.metaConjuntos);
+  const anun = applyDateFilter(DATA.metaAnuncios);
   const k = consolidatedKpis(camp);
 
   renderKpiBar("kpi-meta", [
@@ -368,8 +380,8 @@ function renderMeta() {
 
 /* ---------------- Aba: Google Ads ---------------- */
 function renderGoogle() {
-  const camp = DATA.googleCampanhas;
-  const grupos = DATA.googleGrupos;
+  const camp = applyDateFilter(DATA.googleCampanhas);
+  const grupos = applyDateFilter(DATA.googleGrupos);
   const k = consolidatedKpis(camp);
 
   renderKpiBar("kpi-google", [
@@ -421,7 +433,7 @@ function renderGoogle() {
 
 /* ---------------- Aba: Marketplace ---------------- */
 function renderMarketplace() {
-  const rows = DATA.marketplace;
+  const rows = applyDateFilter(DATA.marketplace);
   const pedidos = sumBy(rows, "PEDIDOS");
   const receita = sumBy(rows, "RECEITA");
 
@@ -525,9 +537,49 @@ function renderReport(type) {
   renderInsights(insightsId, insights);
 }
 
+function renderAll() {
+  renderGeral();
+  renderMeta();
+  renderGoogle();
+  renderMarketplace();
+  renderReport("semanal");
+  renderReport("mensal");
+}
+
+function setupDateFilter() {
+  const inputFrom  = document.getElementById("filter-from");
+  const inputTo    = document.getElementById("filter-to");
+  const btnApply   = document.getElementById("filter-apply");
+  const btnClear   = document.getElementById("filter-clear");
+  const statusEl   = document.getElementById("filter-status");
+
+  btnApply.addEventListener("click", () => {
+    const from = inputFrom.value ? new Date(inputFrom.value + "T00:00:00") : null;
+    const to   = inputTo.value   ? new Date(inputTo.value   + "T23:59:59") : null;
+    dateFilter = { from, to };
+    if (from || to) {
+      const f = from ? from.toLocaleDateString("pt-BR") : "início";
+      const t = to   ? to.toLocaleDateString("pt-BR")   : "hoje";
+      statusEl.textContent = `Filtrando: ${f} — ${t}`;
+    } else {
+      statusEl.textContent = "";
+    }
+    renderAll();
+  });
+
+  btnClear.addEventListener("click", () => {
+    inputFrom.value = "";
+    inputTo.value   = "";
+    dateFilter = { from: null, to: null };
+    statusEl.textContent = "";
+    renderAll();
+  });
+}
+
 /* ---------------- Boot ---------------- */
 async function boot() {
   setupTabs();
+  setupDateFilter();
   document.getElementById("print-semanal")?.addEventListener("click", () => window.print());
   document.getElementById("print-mensal")?.addEventListener("click",  () => window.print());
 
@@ -540,12 +592,7 @@ async function boot() {
     return;
   }
 
-  renderGeral();
-  renderMeta();
-  renderGoogle();
-  renderMarketplace();
-  renderReport("semanal");
-  renderReport("mensal");
+  renderAll();
 }
 
 document.addEventListener("DOMContentLoaded", boot);
