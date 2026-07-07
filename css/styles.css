@@ -43,20 +43,39 @@ a { color: inherit; }
 }
 .topbar button#logout-btn:hover { color: var(--color-text); border-color: var(--color-primary); }
 
-/* ── Tabs de navegação ── */
+/* ── Layout: sidebar + conteúdo ── */
+.layout-wrapper {
+  display: flex;
+  min-height: calc(100vh - 57px);
+}
+
+/* ── Sidebar de navegação ── */
 .tabs {
-  display: flex; gap: 4px; padding: 0 24px; border-bottom: 1px solid var(--color-border);
-  overflow-x: auto;
+  display: flex; flex-direction: column; gap: 2px;
+  width: 200px; min-width: 200px;
+  padding: 20px 12px;
+  border-right: 1px solid var(--color-border);
+  position: sticky; top: 57px;
+  height: calc(100vh - 57px);
+  overflow-y: auto;
+  background: var(--color-bg);
 }
 .tabs button {
   background: transparent; border: none; color: var(--color-muted);
-  padding: 12px 16px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
-  border-bottom: 2px solid transparent; white-space: nowrap;
+  padding: 10px 14px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  border-radius: 8px; text-align: left; white-space: nowrap;
+  border-left: 3px solid transparent;
 }
-.tabs button:hover { color: var(--color-text); }
-.tabs button.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.tabs button:hover { color: var(--color-text); background: var(--color-primary-soft); }
+.tabs button.active {
+  color: var(--color-primary); background: var(--color-primary-soft);
+  border-left-color: var(--color-primary);
+}
 
-main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+/* ── Área de conteúdo ── */
+.content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+main { flex: 1; padding: 24px; }
 
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
@@ -140,7 +159,7 @@ tr:hover td { background: var(--color-primary-soft); }
 /* ── Filtro de data global ── */
 .date-filter-bar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 10px 24px; background: var(--color-card);
+  padding: 10px 20px; background: var(--color-card);
   border-bottom: 1px solid var(--color-border);
 }
 .filter-label { font-size: 0.82rem; font-weight: 600; color: var(--color-muted); }
@@ -173,13 +192,19 @@ tr:hover td { background: var(--color-primary-soft); }
 .empty-state { color: var(--color-muted); font-size: 0.85rem; padding: 24px; text-align: center; }
 
 @media (max-width: 768px) {
+  .layout-wrapper { flex-direction: column; }
+  .tabs { flex-direction: row; flex-wrap: wrap; width: 100%; height: auto;
+          position: static; border-right: none; border-bottom: 1px solid var(--color-border); }
+  .tabs button { border-left: none; border-bottom: 3px solid transparent; }
+  .tabs button.active { border-left-color: transparent; border-bottom-color: var(--color-primary); }
   main { padding: 16px; }
   .chart-grid { grid-template-columns: 1fr; }
   .funnel-step { grid-template-columns: 90px 1fr 60px; }
 }
 
 @media print {
-  .topbar, .tabs, .period-bar button, .detail-toggle { display: none !important; }
+  .topbar, .tabs, .layout-wrapper, .period-bar button, .detail-toggle { display: none !important; }
+  .content-area { display: block; }
   body { background: #fff; color: #1c3a40; }
   .kpi, .card, .chart-card, .chart-full, table, .insight-card { border-color: #cce9ee; background: #fff; }
 }

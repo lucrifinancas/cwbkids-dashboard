@@ -13,6 +13,8 @@
   <button id="logout-btn">Sair</button>
 </div>
 
+<div class="layout-wrapper">
+
 <nav class="tabs" id="tabs">
   <button data-tab="geral" class="active">Dados Gerais</button>
   <button data-tab="meta">Meta Ads</button>
@@ -22,6 +24,7 @@
   <button data-tab="rel-mensal">Relatórios Mensais</button>
 </nav>
 
+<div class="content-area">
 <div class="date-filter-bar">
   <span class="filter-label">Período:</span>
   <input type="date" id="filter-from" title="Data inicial">
@@ -131,6 +134,8 @@
   </section>
 
 </main>
+</div><!-- .content-area -->
+</div><!-- .layout-wrapper -->
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
