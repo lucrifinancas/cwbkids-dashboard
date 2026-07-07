@@ -67,14 +67,20 @@ a { color: inherit; }
 #tabs button {
   background: transparent; border: none; color: rgba(255,255,255,0.75);
   padding: 10px 14px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
-  border-radius: 8px; text-align: left; white-space: nowrap;
+  border-radius: 8px; text-align: left;
   border-left: 3px solid transparent;
+  display: flex; align-items: center; gap: 9px;
 }
 #tabs button:hover { color: #fff; background: rgba(255,255,255,0.15); }
 #tabs button.active {
   color: #fff; background: rgba(255,255,255,0.2);
   border-left-color: #fff;
 }
+.tab-icon { font-size: 1rem; flex-shrink: 0; line-height: 1; }
+.tab-icon-img { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
+.tab-icon-img img { width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
+#tabs button.active .tab-icon-img img,
+#tabs button:hover  .tab-icon-img img { opacity: 1; }
 
 /* ── Área de conteúdo ── */
 .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
