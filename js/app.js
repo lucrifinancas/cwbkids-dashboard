@@ -12,7 +12,7 @@ function applyDateFilter(rows) {
   if (!dateFilter.from && !dateFilter.to) return rows;
   return rows.filter((r) => {
     const d = parseDateBR(r["DATA"]);
-    if (!d) return false;
+    if (!d) return true; // linha sem data legível sempre passa
     if (dateFilter.from && d < dateFilter.from) return false;
     if (dateFilter.to   && d > dateFilter.to)   return false;
     return true;
@@ -35,12 +35,19 @@ const displayName = (row, fallback = "CAMPANHA") =>
   String(row["NOME DE EXIBIÇÃO NO DASHBOARD"] ?? "").trim() || row[fallback] || "";
 
 function parseDateBR(str) {
+  // Serial numérico do Google Sheets (SERIAL_NUMBER): dias desde 30/12/1899
+  // Serial 25569 = 01/01/1970 (época Unix)
+  const num = typeof str === "number" ? str : Number(str);
+  if (Number.isFinite(num) && num > 1000) {
+    const d = new Date((num - 25569) * 86400000);
+    return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  }
   const s = String(str ?? "").trim();
   // DD/MM/YYYY ou D/M/YYYY
-  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  let m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
   if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
-  // YYYY-MM-DD (formato ISO retornado pelo Google Sheets)
-  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  // YYYY-MM-DD
+  m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
   if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   return null;
 }
