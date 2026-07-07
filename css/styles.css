@@ -29,51 +29,66 @@ body {
 
 a { color: inherit; }
 
-/* ── Topbar ── */
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 24px; border-bottom: 1px solid var(--color-border);
-  position: sticky; top: 0; background: var(--color-bg); z-index: 10;
-}
-.topbar .brand { font-weight: 700; font-size: 1.1rem; }
-.topbar .brand span { color: var(--color-primary); }
-.topbar button#logout-btn {
-  background: transparent; border: 1px solid var(--color-border); color: var(--color-muted);
-  border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer;
-}
-.topbar button#logout-btn:hover { color: var(--color-text); border-color: var(--color-primary); }
-
 /* ── Layout: sidebar + conteúdo ── */
 .layout-wrapper {
   display: flex;
-  min-height: calc(100vh - 57px);
+  min-height: 100vh;
 }
 
-/* ── Sidebar de navegação ── */
-.tabs {
-  display: flex; flex-direction: column; gap: 2px;
-  width: 200px; min-width: 200px;
-  padding: 20px 12px;
-  border-right: none;
-  position: sticky; top: 57px;
-  height: calc(100vh - 57px);
-  overflow-y: auto;
+/* ── Sidebar ── */
+.sidebar {
+  display: flex; flex-direction: column;
+  width: 210px; min-width: 210px;
   background: #48b8c9;
+  position: sticky; top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
-.tabs button {
+
+.sidebar-brand {
+  padding: 24px 20px 20px;
+  font-weight: 800; font-size: 1.05rem; color: #fff;
+  line-height: 1.3;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.sidebar-brand span { color: rgba(255,255,255,0.7); font-weight: 400; }
+.sidebar-brand small { font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.6); letter-spacing: 0.08em; text-transform: uppercase; }
+
+/* ── Nav de abas dentro da sidebar ── */
+#tabs {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 16px 10px;
+  flex: 1;
+}
+#tabs button {
   background: transparent; border: none; color: rgba(255,255,255,0.75);
   padding: 10px 14px; font-size: 0.88rem; font-weight: 600; cursor: pointer;
   border-radius: 8px; text-align: left; white-space: nowrap;
   border-left: 3px solid transparent;
 }
-.tabs button:hover { color: #fff; background: rgba(255,255,255,0.15); }
-.tabs button.active {
+#tabs button:hover { color: #fff; background: rgba(255,255,255,0.15); }
+#tabs button.active {
   color: #fff; background: rgba(255,255,255,0.2);
   border-left-color: #fff;
 }
 
 /* ── Área de conteúdo ── */
 .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+/* ── Topbar interno (só na área de conteúdo) ── */
+.content-topbar {
+  display: flex; align-items: center; justify-content: flex-end;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+  flex-shrink: 0;
+}
+.content-topbar button#logout-btn {
+  background: transparent; border: 1px solid var(--color-border); color: var(--color-muted);
+  border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+}
+.content-topbar button#logout-btn:hover { color: var(--color-text); border-color: var(--color-primary); }
 
 main { flex: 1; padding: 24px; }
 
@@ -193,17 +208,19 @@ tr:hover td { background: var(--color-primary-soft); }
 
 @media (max-width: 768px) {
   .layout-wrapper { flex-direction: column; }
-  .tabs { flex-direction: row; flex-wrap: wrap; width: 100%; height: auto;
-          position: static; border-right: none; border-bottom: 1px solid var(--color-border); }
-  .tabs button { border-left: none; border-bottom: 3px solid transparent; }
-  .tabs button.active { border-left-color: transparent; border-bottom-color: var(--color-primary); }
+  .sidebar { flex-direction: column; width: 100%; height: auto; position: static; }
+  .sidebar-brand { padding: 16px 20px; border-bottom: none; border-right: none; }
+  #tabs { flex-direction: row; flex-wrap: wrap; padding: 8px 10px;
+          border-top: 1px solid rgba(255,255,255,0.2); }
+  #tabs button { border-left: none; border-bottom: 3px solid transparent; }
+  #tabs button.active { border-left-color: transparent; border-bottom-color: #fff; }
   main { padding: 16px; }
   .chart-grid { grid-template-columns: 1fr; }
   .funnel-step { grid-template-columns: 90px 1fr 60px; }
 }
 
 @media print {
-  .topbar, .tabs, .layout-wrapper, .period-bar button, .detail-toggle { display: none !important; }
+  .sidebar, .content-topbar, .period-bar button, .detail-toggle { display: none !important; }
   .content-area { display: block; }
   body { background: #fff; color: #1c3a40; }
   .kpi, .card, .chart-card, .chart-full, table, .insight-card { border-color: #cce9ee; background: #fff; }
