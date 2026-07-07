@@ -13,6 +13,14 @@
   <!-- ════════ SIDEBAR ════════ -->
   <aside class="sidebar">
     <div class="sidebar-brand"><img src="/images/logo.png" alt="CWB Kids"></div>
+
+    <div class="sidebar-period">
+      <button class="period-trigger" id="period-trigger">
+        <span id="period-label">Todos os dados</span>
+        <span class="period-caret">▾</span>
+      </button>
+    </div>
+
     <nav id="tabs">
       <button data-tab="geral" class="active">Dados Gerais</button>
       <button data-tab="meta">Meta Ads</button>
@@ -23,18 +31,32 @@
     </nav>
   </aside>
 
+  <!-- ════════ POPUP DE PERÍODO (fora do sidebar) ════════ -->
+  <div class="dp-popup" id="dp-popup" style="display:none">
+    <div class="dp-left">
+      <div class="dp-preset-list">
+        <button class="dp-preset active" data-preset="all">Todos os dados</button>
+        <button class="dp-preset" data-preset="7">Últimos 7 dias</button>
+        <button class="dp-preset" data-preset="14">Últimos 14 dias</button>
+        <button class="dp-preset" data-preset="30">Últimos 30 dias</button>
+      </div>
+      <div class="dp-months-header">MESES</div>
+      <div class="dp-months-list" id="dp-months-list"></div>
+    </div>
+    <div class="dp-right">
+      <div class="dp-calendars" id="dp-calendars"></div>
+      <div class="dp-footer">
+        <span class="dp-range-label" id="dp-range-label">clique em dois dias para intervalo personalizado</span>
+        <div class="dp-actions">
+          <button id="dp-cancel">Cancelar</button>
+          <button id="dp-apply">Aplicar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ CONTEÚDO ════════ -->
   <div class="content-area">
-
-    <div class="date-filter-bar">
-      <span class="filter-label">Período:</span>
-      <input type="date" id="filter-from" title="Data inicial">
-      <span class="filter-sep">até</span>
-      <input type="date" id="filter-to" title="Data final">
-      <button id="filter-apply">Aplicar</button>
-      <button id="filter-clear" class="filter-clear">Todos os dados</button>
-      <span id="filter-status" class="filter-status"></span>
-    </div>
 
     <main>
 
@@ -50,7 +72,7 @@
         </div>
 
         <h2 class="section-title">Evolução Diária</h2>
-        <div class="chart-full"><h3>Investimento e Compras — Meta + Google</h3><canvas id="chart-geral-evolucao"></canvas></div>
+        <div class="chart-full"><h3>Investimento e Receita — Meta + Google</h3><canvas id="chart-geral-evolucao"></canvas></div>
       </section>
 
       <!-- ════════════ META ADS ════════════ -->
@@ -59,7 +81,7 @@
         <div class="kpi-bar" id="kpi-meta"></div>
 
         <h2 class="section-title">Tendência</h2>
-        <div class="chart-full"><h3>Investimento e Compras por dia</h3><canvas id="chart-meta-tendencia"></canvas></div>
+        <div class="chart-full"><h3>Investimento e Receita por dia</h3><canvas id="chart-meta-tendencia"></canvas></div>
 
         <h2 class="section-title">Funil de Conversão</h2>
         <div class="funnel" id="funnel-meta"></div>
@@ -81,7 +103,7 @@
         <div class="kpi-bar" id="kpi-google"></div>
 
         <h2 class="section-title">Tendência</h2>
-        <div class="chart-full"><h3>Investimento e Compras por dia</h3><canvas id="chart-google-tendencia"></canvas></div>
+        <div class="chart-full"><h3>Investimento e Receita por dia</h3><canvas id="chart-google-tendencia"></canvas></div>
 
         <h2 class="section-title">Funil de Conversão</h2>
         <div class="funnel" id="funnel-google"></div>

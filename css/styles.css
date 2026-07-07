@@ -86,37 +86,37 @@ main { flex: 1; padding: 24px; }
 
 /* ── Section titles ── */
 .section-title {
-  font-size: 1.05rem; font-weight: 600; margin: 28px 0 14px;
-  padding-bottom: 8px; border-bottom: 2px solid var(--color-border);
+  font-size: 1.1rem; font-weight: 700; margin: 36px 0 18px;
+  padding-bottom: 10px; border-bottom: 2px solid var(--color-border);
 }
 .section-title:first-child { margin-top: 0; }
 
 /* ── KPI bar ── */
-.kpi-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.kpi-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; }
 .kpi {
   background: var(--color-card); border-radius: var(--radius);
-  padding: 16px; text-align: center; border: 1px solid var(--color-border);
+  padding: 22px 18px; text-align: center; border: 1px solid var(--color-border);
 }
 .kpi .label { font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-.kpi .value { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
-.kpi .delta { font-size: 0.75rem; margin-top: 4px; font-weight: 600; }
+.kpi .value { font-size: 1.5rem; font-weight: 700; margin-top: 6px; }
+.kpi .delta { font-size: 0.75rem; margin-top: 6px; font-weight: 600; }
 .kpi .delta.up { color: var(--color-success); }
 .kpi .delta.down { color: var(--color-danger); }
 
 /* ── Card grid ── */
-.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.card { background: var(--color-card); border-radius: var(--radius); padding: 18px; border: 1px solid var(--color-border); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.card { background: var(--color-card); border-radius: var(--radius); padding: 22px; border: 1px solid var(--color-border); }
 .card .card-label { font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .card .card-value { font-size: 1.3rem; font-weight: 700; margin-top: 6px; }
 
 /* ── Chart grid ── */
-.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .chart-card, .chart-full {
   background: var(--color-card); border-radius: var(--radius);
-  padding: 18px; border: 1px solid var(--color-border);
+  padding: 24px; border: 1px solid var(--color-border);
 }
-.chart-full { margin-top: 16px; }
-.chart-card h3, .chart-full h3 { font-size: 0.85rem; color: var(--color-muted); margin-bottom: 12px; font-weight: 600; }
+.chart-full { margin-top: 20px; }
+.chart-card h3, .chart-full h3 { font-size: 0.87rem; color: var(--color-muted); margin-bottom: 16px; font-weight: 600; }
 .chart-card canvas { width: 100% !important; max-height: 280px; }
 .chart-full canvas { width: 100% !important; }
 
@@ -178,29 +178,107 @@ tr:hover td { background: var(--color-primary-soft); }
 .insight-card h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
 .insight-card p { font-size: 0.82rem; color: var(--color-muted); }
 
-/* ── Filtro de data global ── */
-.date-filter-bar {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 18px 24px; background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
+/* ── Botão de período na sidebar ── */
+.sidebar-period {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  flex-shrink: 0;
 }
-.filter-label { font-size: 0.82rem; font-weight: 600; color: var(--color-muted); }
-.filter-sep { font-size: 0.82rem; color: var(--color-muted); }
-.date-filter-bar input[type="date"] {
-  background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);
-  border-radius: 8px; padding: 6px 10px; font-size: 0.82rem; cursor: pointer;
+.period-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; background: rgba(255,255,255,0.15);
+  border: none; border-radius: 8px;
+  padding: 8px 12px; color: #fff;
+  font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  text-align: left; gap: 6px;
 }
-.date-filter-bar input[type="date"]:focus { outline: none; border-color: var(--color-primary); }
-.date-filter-bar button {
-  background: var(--color-primary); border: none; color: #fff;
-  border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+.period-trigger:hover { background: rgba(255,255,255,0.25); }
+.period-caret { opacity: 0.7; font-size: 0.75rem; flex-shrink: 0; }
+
+/* ── Popup de data ── */
+.dp-popup {
+  position: fixed; z-index: 1000;
+  display: flex;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.22);
+  overflow: hidden;
 }
-.date-filter-bar button:hover { opacity: 0.85; }
-.date-filter-bar button.filter-clear {
-  background: transparent; border: 1px solid var(--color-border); color: var(--color-muted);
+.dp-left {
+  width: 168px; min-width: 168px;
+  background: #1c2e3a;
+  padding: 18px 0;
+  display: flex; flex-direction: column;
+  overflow-y: auto;
 }
-.date-filter-bar button.filter-clear:hover { border-color: var(--color-primary); color: var(--color-text); opacity: 1; }
-.filter-status { font-size: 0.78rem; color: var(--color-primary); font-weight: 600; }
+.dp-preset {
+  background: none; border: none; color: rgba(255,255,255,0.7);
+  text-align: left; padding: 9px 20px;
+  font-size: 0.82rem; cursor: pointer; width: 100%;
+}
+.dp-preset:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.dp-preset.active { color: #fff; background: rgba(255,255,255,0.13); }
+.dp-months-header {
+  color: rgba(255,255,255,0.35); font-size: 0.67rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 14px 20px 6px;
+}
+.dp-month-item {
+  background: none; border: none; color: rgba(255,255,255,0.7);
+  text-align: left; padding: 7px 20px;
+  font-size: 0.82rem; cursor: pointer; width: 100%;
+}
+.dp-month-item:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.dp-month-item.active { color: #fff; background: rgba(255,255,255,0.13); }
+
+/* ── Área de calendários ── */
+.dp-right {
+  flex: 1; display: flex; flex-direction: column; padding: 20px;
+  min-width: 480px;
+}
+.dp-calendars { display: flex; gap: 24px; }
+.dp-cal { flex: 1; }
+.dp-cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; font-size: 0.88rem; font-weight: 600;
+}
+.dp-nav {
+  background: none; border: 1px solid var(--color-border);
+  border-radius: 6px; cursor: pointer;
+  font-size: 1rem; color: var(--color-muted);
+  width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+}
+.dp-nav:hover { color: var(--color-text); border-color: var(--color-primary); }
+.dp-day-names {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  text-align: center; font-size: 0.7rem; color: var(--color-muted);
+  margin-bottom: 6px; gap: 2px;
+}
+.dp-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.dp-day {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; border-radius: 50%; cursor: pointer; user-select: none;
+}
+.dp-day:not(.empty):hover { background: var(--color-primary-soft); }
+.dp-day.in-range { background: #e0f5f8; border-radius: 0; }
+.dp-day.selected { background: var(--color-primary) !important; color: #fff; border-radius: 50%; font-weight: 700; }
+.dp-day.today { font-weight: 700; color: var(--color-primary); }
+.dp-day.empty { cursor: default; pointer-events: none; }
+
+/* ── Rodapé do popup ── */
+.dp-footer {
+  margin-top: 18px; border-top: 1px solid var(--color-border);
+  padding-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.dp-range-label { font-size: 0.8rem; color: var(--color-muted); flex: 1; }
+.dp-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.dp-actions button {
+  border-radius: 8px; padding: 8px 18px; font-size: 0.82rem; font-weight: 600; cursor: pointer; border: none;
+}
+#dp-cancel { background: #f0f0f0; color: #333; }
+#dp-cancel:hover { background: #e2e2e2; }
+#dp-apply { background: var(--color-primary); color: #fff; }
+#dp-apply:hover { opacity: 0.88; }
 
 /* ── Filtro de período (relatórios) ── */
 .period-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -227,7 +305,7 @@ tr:hover td { background: var(--color-primary-soft); }
 }
 
 @media print {
-  .sidebar, .content-topbar, .period-bar button, .detail-toggle { display: none !important; }
+  .sidebar, .dp-popup, .period-bar button, .detail-toggle { display: none !important; }
   .content-area { display: block; }
   body { background: #fff; color: #1c3a40; }
   .kpi, .card, .chart-card, .chart-full, table, .insight-card { border-color: #cce9ee; background: #fff; }

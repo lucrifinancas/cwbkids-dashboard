@@ -196,7 +196,7 @@ function wrapCanvas(canvasId, height) {
   wrap.appendChild(canvas);
 }
 
-function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", convField = "COMPRAS") {
+function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receitaField = "RECEITA") {
   wrapCanvas(canvasId, 260);
   upsertChart(canvasId, {
     type: "line",
@@ -206,7 +206,7 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", convFi
         { label: "Investimento (R$)", data: series.map((s) => parseNum(s[investField])),
           yAxisID: "y", borderColor: PALETTE[0], backgroundColor: PALETTE[0] + "20",
           fill: true, tension: 0.3, pointRadius: 2, borderWidth: 2 },
-        { label: "Compras", data: series.map((s) => parseNum(s[convField]) || s.compras || 0),
+        { label: "Receita (R$)", data: series.map((s) => parseNum(s[receitaField]) || s.receita || 0),
           yAxisID: "y1", borderColor: PALETTE[1], backgroundColor: "transparent",
           borderDash: [5, 3], tension: 0.3, pointRadius: 2, borderWidth: 2 },
       ],
@@ -219,7 +219,8 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", convFi
         y:  { position: "left",  title: { display: true, text: "Investimento (R$)" },
                ticks: { callback: (v) => fmtBRL(v) } },
         y1: { position: "right", grid: { drawOnChartArea: false },
-               title: { display: true, text: "Compras" } },
+               title: { display: true, text: "Receita (R$)" },
+               ticks: { callback: (v) => fmtBRL(v) } },
       },
     },
   });
@@ -325,9 +326,9 @@ function renderGeral() {
     ["Meta Ads", "Google Ads", "Orgânico", "Marketplace"],
     [sumBy(metaRows, "COMPRAS"), sumBy(googleRows, "COMPRAS"), orgCompras, mkPedidos]);
 
-  const metaD   = dailySeries(metaRows,   ["INVESTIMENTO", "COMPRAS"]);
-  const googleD = dailySeries(googleRows, ["INVESTIMENTO", "COMPRAS"]);
-  const mkD     = dailySeries(marketRows, ["PEDIDOS"]);
+  const metaD   = dailySeries(metaRows,   ["INVESTIMENTO", "RECEITA"]);
+  const googleD = dailySeries(googleRows, ["INVESTIMENTO", "RECEITA"]);
+  const mkD     = dailySeries(marketRows, ["RECEITA"]);
   const dateKeys = [...new Set([...metaD, ...googleD, ...orgSeries, ...mkD].map((d) => isoDate(d.date)))].sort();
   const combined = dateKeys.map((key) => {
     const m  = metaD.find((d) => isoDate(d.date) === key);
@@ -337,7 +338,7 @@ function renderGeral() {
     return {
       date:        new Date(key),
       INVESTIMENTO: (m?.INVESTIMENTO || 0) + (g?.INVESTIMENTO || 0),
-      COMPRAS:      (m?.COMPRAS || 0) + (g?.COMPRAS || 0) + (o?.compras || 0) + (mk?.PEDIDOS || 0),
+      RECEITA:      (m?.RECEITA || 0) + (g?.RECEITA || 0) + (o?.receita || 0) + (mk?.RECEITA || 0),
     };
   });
   renderTrendChart("chart-geral-evolucao", combined);
@@ -359,7 +360,7 @@ function renderMeta() {
     { label: "CTR",           value: fmtPct(k.ctr) },
   ]);
 
-  renderTrendChart("chart-meta-tendencia", dailySeries(camp, ["INVESTIMENTO", "COMPRAS"]));
+  renderTrendChart("chart-meta-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
 
   renderFunnel("funnel-meta", [
     { label: "Impressões",  value: sumBy(camp, "IMPRESSÕES") },
@@ -420,7 +421,7 @@ function renderGoogle() {
     { label: "CTR",           value: fmtPct(k.ctr) },
   ]);
 
-  renderTrendChart("chart-google-tendencia", dailySeries(camp, ["INVESTIMENTO", "COMPRAS"]));
+  renderTrendChart("chart-google-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
 
   renderFunnel("funnel-google", [
     { label: "Impressões",          value: sumBy(camp, "IMPRESSÕES") },
@@ -538,7 +539,7 @@ function renderReport(type) {
     { label: "CPA",          value: fmtBRL(k.cpa) },
   ]);
 
-  renderTrendChart(chartId, dailySeries(periodRows, ["INVESTIMENTO", "COMPRAS"]));
+  renderTrendChart(chartId, dailySeries(periodRows, ["INVESTIMENTO", "RECEITA"]));
 
   const byCamp = new Map();
   periodRows.forEach((r) => {
@@ -573,40 +574,164 @@ function renderAll() {
   renderReport("mensal");
 }
 
-function setupDateFilter() {
-  const inputFrom  = document.getElementById("filter-from");
-  const inputTo    = document.getElementById("filter-to");
-  const btnApply   = document.getElementById("filter-apply");
-  const btnClear   = document.getElementById("filter-clear");
-  const statusEl   = document.getElementById("filter-status");
+function setupDatePicker() {
+  const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+  const DAY_NAMES = ["seg","ter","qua","qui","sex","sáb","dom"];
 
-  btnApply.addEventListener("click", () => {
-    const from = inputFrom.value ? new Date(inputFrom.value + "T00:00:00") : null;
-    const to   = inputTo.value   ? new Date(inputTo.value   + "T23:59:59") : null;
-    dateFilter = { from, to };
-    if (from || to) {
-      const f = from ? from.toLocaleDateString("pt-BR") : "início";
-      const t = to   ? to.toLocaleDateString("pt-BR")   : "hoje";
-      statusEl.textContent = `Filtrando: ${f} — ${t}`;
-    } else {
-      statusEl.textContent = "";
+  let dpFrom = null, dpTo = null, clickStep = 0;
+  const now = new Date();
+  let calLeft = { year: now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear(),
+                   month: now.getMonth() === 0 ? 11 : now.getMonth() - 1 };
+
+  const trigger    = document.getElementById("period-trigger");
+  const popup      = document.getElementById("dp-popup");
+  const labelEl    = document.getElementById("period-label");
+  const calsEl     = document.getElementById("dp-calendars");
+  const rangeEl    = document.getElementById("dp-range-label");
+  const monthsList = document.getElementById("dp-months-list");
+
+  function fmtShort(d) {
+    return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}`;
+  }
+  function isSameDay(a, b) {
+    return a && b && a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  }
+
+  // Meses do ano atual até o mês corrente
+  const monthItems = [];
+  for (let m = 0; m <= now.getMonth(); m++) monthItems.push({ year: now.getFullYear(), month: m });
+  monthsList.innerHTML = monthItems.map(({ year, month }) =>
+    `<button class="dp-month-item" data-year="${year}" data-month="${month}">${MONTHS[month]}</button>`
+  ).join("");
+
+  monthsList.querySelectorAll(".dp-month-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const y = +btn.dataset.year, m = +btn.dataset.month;
+      dpFrom = new Date(y, m, 1);
+      dpTo   = new Date(y, m + 1, 0, 23, 59, 59);
+      clickStep = 0;
+      clearActivePresets();
+      btn.classList.add("active");
+      render();
+    });
+  });
+
+  document.querySelectorAll(".dp-preset").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const p = btn.dataset.preset;
+      if (p === "all") { dpFrom = null; dpTo = null; }
+      else {
+        const days = +p;
+        dpTo   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        dpFrom = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days + 1, 0, 0, 0);
+      }
+      clickStep = 0;
+      clearActivePresets();
+      btn.classList.add("active");
+      render();
+    });
+  });
+
+  function clearActivePresets() {
+    document.querySelectorAll(".dp-preset, .dp-month-item").forEach(b => b.classList.remove("active"));
+  }
+
+  function render() {
+    const r = calLeft.month === 11
+      ? { year: calLeft.year + 1, month: 0 }
+      : { year: calLeft.year,     month: calLeft.month + 1 };
+    calsEl.innerHTML = renderCal(calLeft) + renderCal(r);
+
+    if (dpFrom && dpTo) rangeEl.textContent = `${fmtShort(dpFrom)} → ${fmtShort(dpTo)}`;
+    else if (dpFrom)    rangeEl.textContent = `${fmtShort(dpFrom)} → ?`;
+    else                rangeEl.textContent = "clique em dois dias para intervalo personalizado";
+
+    calsEl.querySelectorAll(".dp-day[data-iso]").forEach(el => {
+      el.addEventListener("click", () => {
+        const d = new Date(el.dataset.iso + "T12:00:00");
+        if (clickStep === 0) { dpFrom = d; dpTo = null; clickStep = 1; }
+        else { if (d < dpFrom) { dpTo = dpFrom; dpFrom = d; } else dpTo = d; clickStep = 0; }
+        clearActivePresets();
+        render();
+      });
+    });
+    calsEl.querySelectorAll("[data-nav]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        calLeft.month += +btn.dataset.nav;
+        if (calLeft.month < 0)  { calLeft.month = 11; calLeft.year--; }
+        if (calLeft.month > 11) { calLeft.month = 0;  calLeft.year++; }
+        render();
+      });
+    });
+  }
+
+  function renderCal({ year, month }) {
+    const firstDow  = new Date(year, month, 1).getDay();
+    const offset    = firstDow === 0 ? 6 : firstDow - 1;
+    const daysCount = new Date(year, month + 1, 0).getDate();
+    let cells = "";
+    for (let i = 0; i < offset; i++) cells += `<span class="dp-day empty"></span>`;
+    for (let d = 1; d <= daysCount; d++) {
+      const date = new Date(year, month, d);
+      const iso  = `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+      let cls = "dp-day";
+      if (isSameDay(date, dpFrom) || isSameDay(date, dpTo)) cls += " selected";
+      else if (dpFrom && dpTo && date > dpFrom && date < dpTo) cls += " in-range";
+      if (isSameDay(date, now)) cls += " today";
+      cells += `<span class="${cls}" data-iso="${iso}">${d}</span>`;
     }
+    return `<div class="dp-cal">
+      <div class="dp-cal-header">
+        <button class="dp-nav" data-nav="-1">‹</button>
+        <strong>${MONTHS[month]} ${year}</strong>
+        <button class="dp-nav" data-nav="1">›</button>
+      </div>
+      <div class="dp-day-names">${DAY_NAMES.map(n => `<span>${n}</span>`).join("")}</div>
+      <div class="dp-days">${cells}</div>
+    </div>`;
+  }
+
+  // Abre/fecha popup
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (popup.style.display !== "none") { popup.style.display = "none"; return; }
+    render();
+    popup.style.display = "flex";
+    const rect = trigger.getBoundingClientRect();
+    popup.style.top  = Math.min(rect.top, window.innerHeight - 420) + "px";
+    popup.style.left = (rect.right + 10) + "px";
+  });
+
+  document.getElementById("dp-cancel").addEventListener("click", () => {
+    popup.style.display = "none";
+  });
+
+  document.getElementById("dp-apply").addEventListener("click", () => {
+    dateFilter = {
+      from: dpFrom ? new Date(dpFrom.getFullYear(), dpFrom.getMonth(), dpFrom.getDate(), 0, 0, 0) : null,
+      to:   dpTo   ? new Date(dpTo.getFullYear(),   dpTo.getMonth(),   dpTo.getDate(),   23,59,59) : null,
+    };
+    if (!dpFrom && !dpTo)      labelEl.textContent = "Todos os dados";
+    else if (dpFrom && dpTo)   labelEl.textContent = `${fmtShort(dpFrom)} → ${fmtShort(dpTo)}`;
+    else if (dpFrom)           labelEl.textContent = `A partir de ${fmtShort(dpFrom)}`;
+    popup.style.display = "none";
     renderAll();
   });
 
-  btnClear.addEventListener("click", () => {
-    inputFrom.value = "";
-    inputTo.value   = "";
-    dateFilter = { from: null, to: null };
-    statusEl.textContent = "";
-    renderAll();
+  document.addEventListener("click", (e) => {
+    if (!popup.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) {
+      popup.style.display = "none";
+    }
   });
+
+  // Marca "Todos os dados" como ativo por padrão
+  document.querySelector(".dp-preset[data-preset='all']")?.classList.add("active");
 }
 
 /* ---------------- Boot ---------------- */
 async function boot() {
   setupTabs();
-  setupDateFilter();
+  setupDatePicker();
   document.getElementById("print-semanal")?.addEventListener("click", () => window.print());
   document.getElementById("print-mensal")?.addEventListener("click",  () => window.print());
 
