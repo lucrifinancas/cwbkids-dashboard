@@ -12,7 +12,7 @@ function applyDateFilter(rows) {
   if (!dateFilter.from && !dateFilter.to) return rows;
   return rows.filter((r) => {
     const d = parseDateBR(r["DATA"]);
-    if (!d) return true;
+    if (!d) return false;
     if (dateFilter.from && d < dateFilter.from) return false;
     if (dateFilter.to   && d > dateFilter.to)   return false;
     return true;
@@ -35,9 +35,14 @@ const displayName = (row, fallback = "CAMPANHA") =>
   String(row["NOME DE EXIBIÇÃO NO DASHBOARD"] ?? "").trim() || row[fallback] || "";
 
 function parseDateBR(str) {
-  const m = String(str ?? "").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (!m) return null;
-  return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  const s = String(str ?? "").trim();
+  // DD/MM/YYYY ou D/M/YYYY
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  // YYYY-MM-DD (formato ISO retornado pelo Google Sheets)
+  m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  return null;
 }
 function isoDate(d) { return d.toISOString().slice(0, 10); }
 
