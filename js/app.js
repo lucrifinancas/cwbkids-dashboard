@@ -173,7 +173,19 @@ function upsertChart(canvasId, config) {
   charts[canvasId] = new Chart(el, config);
 }
 
+function wrapCanvas(canvasId, height) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  if (canvas.parentElement.classList.contains("chart-canvas-wrap")) return;
+  const wrap = document.createElement("div");
+  wrap.className = "chart-canvas-wrap";
+  wrap.style.cssText = `position:relative;height:${height}px;`;
+  canvas.parentNode.insertBefore(wrap, canvas);
+  wrap.appendChild(canvas);
+}
+
 function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", convField = "COMPRAS") {
+  wrapCanvas(canvasId, 260);
   upsertChart(canvasId, {
     type: "line",
     data: {
@@ -188,7 +200,7 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", convFi
       ],
     },
     options: {
-      responsive: true, maintainAspectRatio: true, aspectRatio: 3.5,
+      responsive: true, maintainAspectRatio: false,
       plugins: { legend: { labels: { usePointStyle: true, pointStyle: "circle" } } },
       scales: {
         x: { ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 15 } },
@@ -250,6 +262,7 @@ function setupTabs() {
       document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(`panel-${btn.dataset.tab}`).classList.add("active");
+      window.dispatchEvent(new Event("resize"));
     });
   });
 
