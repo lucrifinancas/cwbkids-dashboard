@@ -121,11 +121,29 @@ main { flex: 1; padding: 24px; }
 .chart-full canvas { width: 100% !important; }
 
 /* ── Funil ── */
-.funnel { display: flex; flex-direction: column; gap: 8px; }
-.funnel-step { display: grid; grid-template-columns: 140px 1fr 90px; align-items: center; gap: 10px; font-size: 0.82rem; }
-.funnel-step .bar { background: var(--color-border); border-radius: 6px; height: 22px; overflow: hidden; }
-.funnel-step .bar-fill { background: var(--color-primary); height: 100%; border-radius: 6px; }
-.funnel-step .rate { color: var(--color-muted); text-align: right; }
+.funnel { display: flex; flex-direction: column; gap: 4px; }
+.funnel-step {
+  display: grid;
+  grid-template-columns: 150px 1fr 110px;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+}
+.funnel-label { color: var(--color-text); font-weight: 500; }
+.funnel-bar-outer {
+  display: flex;
+  justify-content: center;
+  height: 30px;
+}
+.funnel-bar-inner {
+  background: var(--color-primary);
+  height: 100%;
+  border-radius: 4px;
+  min-width: 4px;
+  transition: width 0.4s ease;
+}
+.funnel-rate { color: var(--color-text); font-weight: 600; text-align: right; font-size: 0.82rem; }
+.funnel-conv { color: var(--color-muted); font-size: 0.75rem; font-weight: 400; margin-left: 4px; }
 
 /* ── Tabela ── */
 .table-wrap { overflow-x: auto; margin-top: 16px; }

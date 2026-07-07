@@ -232,13 +232,15 @@ function renderFunnel(containerId, steps) {
   if (!el) return;
   const max = steps[0]?.value || 1;
   el.innerHTML = steps.map((s, i) => {
-    const pct = max ? (s.value / max) * 100 : 0;
+    const pct = max ? Math.max((s.value / max) * 100, 2) : 2;
     const rate = i > 0 && steps[i - 1].value
-      ? ` (${fmtPct(s.value / steps[i - 1].value)})` : "";
+      ? `<span class="funnel-conv">${fmtPct(s.value / steps[i - 1].value)}</span>` : "";
     return `<div class="funnel-step">
-      <div>${s.label}</div>
-      <div class="bar"><div class="bar-fill" style="width:${pct}%"></div></div>
-      <div class="rate">${fmtNum(s.value)}${rate}</div>
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-bar-outer">
+        <div class="funnel-bar-inner" style="width:${pct}%"></div>
+      </div>
+      <div class="funnel-rate">${fmtNum(s.value)} ${rate}</div>
     </div>`;
   }).join("");
 }
