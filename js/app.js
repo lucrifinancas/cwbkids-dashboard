@@ -188,7 +188,7 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", convFi
       ],
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: true, aspectRatio: 3.5,
       plugins: { legend: { labels: { usePointStyle: true, pointStyle: "circle" } } },
       scales: {
         x: { ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 15 } },

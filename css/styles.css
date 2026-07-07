@@ -95,7 +95,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 24px; }
 .chart-full { margin-top: 16px; }
 .chart-card h3, .chart-full h3 { font-size: 0.85rem; color: var(--color-muted); margin-bottom: 12px; font-weight: 600; }
 .chart-card canvas { width: 100% !important; max-height: 280px; }
-.chart-full canvas { width: 100% !important; height: 260px; }
+.chart-full canvas { width: 100% !important; }
 
 /* ── Funil ── */
 .funnel { display: flex; flex-direction: column; gap: 8px; }
