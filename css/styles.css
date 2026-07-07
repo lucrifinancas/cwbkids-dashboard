@@ -163,7 +163,7 @@ tr:hover td { background: var(--color-primary-soft); }
 /* ── Filtro de data global ── */
 .date-filter-bar {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  padding: 10px 20px; background: var(--color-card);
+  padding: 18px 24px; background: var(--color-card);
   border-bottom: 1px solid var(--color-border);
 }
 .filter-label { font-size: 0.82rem; font-weight: 600; color: var(--color-muted); }
