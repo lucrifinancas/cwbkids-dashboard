@@ -692,6 +692,9 @@ function setupDatePicker() {
   }
 
   // Abre/fecha popup
+  // Impede que cliques dentro do popup propaguem e fechem o calendário
+  popup.addEventListener("click", (e) => e.stopPropagation());
+
   trigger.addEventListener("click", (e) => {
     e.stopPropagation();
     if (popup.style.display !== "none") { popup.style.display = "none"; return; }
