@@ -78,9 +78,7 @@ a { color: inherit; }
 }
 .tab-icon { font-size: 1rem; flex-shrink: 0; line-height: 1; }
 .tab-icon-img { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; }
-.tab-icon-img img { width: 18px; height: 18px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
-#tabs button.active .tab-icon-img img,
-#tabs button:hover  .tab-icon-img img { opacity: 1; }
+.tab-icon-img img { width: 18px; height: 18px; object-fit: contain; }
 
 /* ── Área de conteúdo ── */
 .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; }
