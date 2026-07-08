@@ -25,15 +25,22 @@ export default async function handler(req, res) {
     return res.status(200).json({ steps });
   }
 
-  // 4. Lê cabeçalhos da aba NUVEMSHOP
+  // 4. Lê NUVEMSHOP e GOOGLE ADS - CAMPANHAS para diagnóstico
   try {
     const token = await getAccessToken(email, privateKey, "https://www.googleapis.com/auth/spreadsheets.readonly");
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent("NUVEMSHOP!A1:Z3")}?valueRenderOption=UNFORMATTED_VALUE`;
-    const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    const body = await resp.json();
-    steps.push({ step: "nuvemshop_headers", status: resp.status, rows: body.values || [] });
+    const base = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values`;
+
+    const [r1, r2] = await Promise.all([
+      fetch(`${base}/${encodeURIComponent("NUVEMSHOP!A1:D20")}?valueRenderOption=UNFORMATTED_VALUE`, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(`${base}/${encodeURIComponent("GOOGLE ADS - CAMPANHAS!A1:N20")}?valueRenderOption=UNFORMATTED_VALUE`, { headers: { Authorization: `Bearer ${token}` } }),
+    ]);
+
+    const nv = await r1.json();
+    const ga = await r2.json();
+    steps.push({ step: "nuvemshop",    rows: nv.values || [] });
+    steps.push({ step: "google_camps", rows: ga.values || [] });
   } catch (err) {
-    steps.push({ step: "nuvemshop_headers", ok: false, error: String(err.message || err) });
+    steps.push({ step: "sheets_read", ok: false, error: String(err.message || err) });
   }
 
   res.status(200).json({ steps });
