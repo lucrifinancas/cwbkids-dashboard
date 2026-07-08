@@ -32,9 +32,12 @@ Crie 8 abas com exatamente estes nomes e cabeçalhos na linha 1 (os scripts de s
 - A dashboard calcula "Orgânico" = Total da Loja menos o que já está somado em META ADS - CAMPANHAS e GOOGLE ADS - CAMPANHAS naquele mesmo dia. Não é uma atribuição por UTM, é resíduo (loja total − pago rastreado).
 
 ## MARKETPLACE (preenchimento manual seu)
-`Data | Marketplace | Pedidos | Receita | Ticket Médio | Observações`
+`Data | Marketplace | Pedidos | Receita | Observações`
 
-Exemplo de linha: `15/06/2026 | Mercado Livre | 12 | 1850,00 | 154,17 | `
+- Insira apenas os dias em que houve vendas. Dias sem linha = sem vendas (a dashboard trata como 0).
+- **Ticket Médio é calculado automaticamente** pela dashboard (Receita ÷ Pedidos).
+
+Exemplo de linha: `15/06/2026 | Mercado Livre | 12 | 1850,00 | `
 
 ## INSIGHTS (preenchimento manual seu)
 `Período | Tipo | Categoria | Título | Texto`

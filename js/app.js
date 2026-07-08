@@ -467,18 +467,26 @@ function renderMarketplace() {
   const pedidos = sumBy(rows, "PEDIDOS");
   const receita = sumBy(rows, "RECEITA");
 
+  const ticketMedio = pedidos > 0 ? receita / pedidos : 0;
+
   renderKpiBar("kpi-marketplace", [
     { label: "Pedidos",      value: fmtNum(pedidos) },
     { label: "Receita",      value: fmtBRL(receita) },
+    { label: "Ticket Médio", value: fmtBRL(ticketMedio) },
     { label: "Ticket Médio", value: fmtBRL(pedidos ? receita / pedidos : 0) },
   ]);
 
   renderTable("table-marketplace", [
-    { key: "DATA",         label: "Data",         fmt: (v) => v },
-    { key: "MARKETPLACE",  label: "Marketplace",  fmt: (v) => v },
-    { key: "PEDIDOS",      label: "Pedidos",      fmt: fmtNum },
-    { key: "RECEITA",      label: "Receita",      fmt: fmtBRL },
-    { key: "TICKET MÉDIO", label: "Ticket Médio", fmt: fmtBRL },
+    { key: "DATA",        label: "Data",         fmt: (v) => v },
+    { key: "MARKETPLACE", label: "Marketplace",  fmt: (v) => v },
+    { key: "PEDIDOS",     label: "Pedidos",      fmt: fmtNum },
+    { key: "RECEITA",     label: "Receita",      fmt: fmtBRL },
+    { key: "_ticket",     label: "Ticket Médio", fmt: (_, r) => {
+        const p = parseNum(r["PEDIDOS"]);
+        return p > 0 ? fmtBRL(parseNum(r["RECEITA"]) / p) : "—";
+      }
+    },
+    { key: "OBSERVAÇÕES", label: "Obs.",          fmt: (v) => v || "" },
   ], rows);
 }
 
