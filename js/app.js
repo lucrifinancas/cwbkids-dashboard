@@ -477,7 +477,7 @@ function renderMarketplace() {
   ]);
 
   renderTable("table-marketplace", [
-    { key: "DATA",        label: "Data",         fmt: (v) => v },
+    { key: "DATA",        label: "Data",         fmt: (v) => { const d = parseDateBR(v); return d ? d.toLocaleDateString("pt-BR") : v; } },
     { key: "MARKETPLACE", label: "Marketplace",  fmt: (v) => v },
     { key: "PEDIDOS",     label: "Pedidos",      fmt: fmtNum },
     { key: "RECEITA",     label: "Receita",      fmt: fmtBRL },
