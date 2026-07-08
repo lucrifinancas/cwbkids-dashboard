@@ -476,6 +476,21 @@ function renderMarketplace() {
     { label: "Ticket Médio", value: fmtBRL(pedidos ? receita / pedidos : 0) },
   ]);
 
+  // Agrega pedidos e receita por marketplace
+  const MK_COLORS = { "Mercado Livre": "#f6bf1d", "Amazon": "#146eb4", "Shopee": "#ee4d2d" };
+  const byChannel = new Map();
+  rows.forEach((r) => {
+    const name = String(r["MARKETPLACE"] || "").trim();
+    if (!name) return;
+    if (!byChannel.has(name)) byChannel.set(name, { pedidos: 0, receita: 0 });
+    byChannel.get(name).pedidos += parseNum(r["PEDIDOS"]);
+    byChannel.get(name).receita += parseNum(r["RECEITA"]);
+  });
+  const mkLabels  = [...byChannel.keys()];
+  const mkColors  = mkLabels.map((n) => MK_COLORS[n] || "#aaa");
+  renderDoughnut("chart-marketplace-pedidos", mkLabels, mkLabels.map((n) => byChannel.get(n).pedidos), mkColors);
+  renderDoughnut("chart-marketplace-receita",  mkLabels, mkLabels.map((n) => byChannel.get(n).receita),  mkColors);
+
   renderTable("table-marketplace", [
     { key: "DATA",        label: "Data",         fmt: (v) => { const d = parseDateBR(v); return d ? d.toLocaleDateString("pt-BR") : v; } },
     { key: "MARKETPLACE", label: "Marketplace",  fmt: (v) => v },
