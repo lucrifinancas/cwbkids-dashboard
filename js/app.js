@@ -314,15 +314,19 @@ function renderGeral() {
   const orgSessoes  = orgSeries.reduce((a, s) => a + s.sessoes, 0);
   const mkPedidos   = sumBy(marketRows, "PEDIDOS");
   const mkReceita   = sumBy(marketRows, "RECEITA");
-  const comprasTot  = k.compras + orgCompras + mkPedidos;
-  const receitaTot  = k.receita + orgReceita + mkReceita;
+  // Usa Nuvemshop como fonte verdade para totais: evita que pedidos cancelados
+  // registrados em plataformas de anúncio (mas removidos da loja) inflam os KPIs.
+  const nvCompras   = sumBy(orgRows, "PEDIDOS TOTAIS DA LOJA");
+  const nvReceita   = sumBy(orgRows, "RECEITA TOTAL DA LOJA");
+  const comprasTot  = nvCompras + mkPedidos;
+  const receitaTot  = nvReceita + mkReceita;
 
   renderKpiBar("kpi-geral", [
     { label: "Investimento Total (pago)", value: fmtBRL(k.investimento) },
     { label: "Compras — Todos os Canais", value: fmtNum(comprasTot) },
     { label: "Receita — Todos os Canais", value: fmtBRL(receitaTot) },
     { label: "Visitas à Loja",            value: fmtNum(orgSessoes) },
-    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? (k.compras + orgCompras) / orgSessoes : 0) },
+    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? nvCompras / orgSessoes : 0) },
     { label: "Pedidos Marketplace",       value: fmtNum(mkPedidos) },
   ]);
 
