@@ -314,8 +314,8 @@ function renderGeral() {
     { label: "Investimento Total (pago)", value: fmtBRL(k.investimento) },
     { label: "Compras — Todos os Canais", value: fmtNum(comprasTot) },
     { label: "Receita — Todos os Canais", value: fmtBRL(receitaTot) },
-    { label: "Sessões Orgânico",          value: fmtNum(orgSessoes) },
-    { label: "Tx. Conv. Orgânico",        value: fmtPct(orgSessoes ? orgCompras / orgSessoes : 0) },
+    { label: "Visitas à Loja",            value: fmtNum(orgSessoes) },
+    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? orgCompras / orgSessoes : 0) },
     { label: "Pedidos Marketplace",       value: fmtNum(mkPedidos) },
   ]);
 
