@@ -204,10 +204,10 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receit
       labels: series.map((s) => s.date.toLocaleDateString("pt-BR")),
       datasets: [
         { label: "Investimento (R$)", data: series.map((s) => parseNum(s[investField])),
-          yAxisID: "y", borderColor: PALETTE[0], backgroundColor: PALETTE[0] + "20",
+          yAxisID: "y", borderColor: "#e53e3e", backgroundColor: "#e53e3e20",
           fill: true, tension: 0.3, pointRadius: 2, borderWidth: 2 },
         { label: "Receita (R$)", data: series.map((s) => parseNum(s[receitaField]) || s.receita || 0),
-          yAxisID: "y1", borderColor: PALETTE[1], backgroundColor: "transparent",
+          yAxisID: "y1", borderColor: "#22c55e", backgroundColor: "transparent",
           borderDash: [5, 3], tension: 0.3, pointRadius: 2, borderWidth: 2 },
       ],
     },
@@ -226,10 +226,10 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receit
   });
 }
 
-function renderDoughnut(canvasId, labels, values) {
+function renderDoughnut(canvasId, labels, values, colors) {
   upsertChart(canvasId, {
     type: "doughnut",
-    data: { labels, datasets: [{ data: values, backgroundColor: PALETTE.slice(0, labels.length), borderWidth: 0 }] },
+    data: { labels, datasets: [{ data: values, backgroundColor: colors || PALETTE.slice(0, labels.length), borderWidth: 0 }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: "55%",
                plugins: { legend: { position: "bottom", labels: { usePointStyle: true, pointStyle: "circle" } } } },
   });
@@ -321,10 +321,12 @@ function renderGeral() {
 
   renderDoughnut("chart-geral-canal",
     ["Meta Ads", "Google Ads"],
-    [sumBy(metaRows, "INVESTIMENTO"), sumBy(googleRows, "INVESTIMENTO")]);
+    [sumBy(metaRows, "INVESTIMENTO"), sumBy(googleRows, "INVESTIMENTO")],
+    ["#0575f1", "#f6bf1d"]);
   renderDoughnut("chart-geral-compras",
     ["Meta Ads", "Google Ads", "Orgânico", "Marketplace"],
-    [sumBy(metaRows, "COMPRAS"), sumBy(googleRows, "COMPRAS"), orgCompras, mkPedidos]);
+    [sumBy(metaRows, "COMPRAS"), sumBy(googleRows, "COMPRAS"), orgCompras, mkPedidos],
+    ["#0575f1", "#f6bf1d", "#22c55e", "#ff6300"]);
 
   const metaD   = dailySeries(metaRows,   ["INVESTIMENTO", "RECEITA"]);
   const googleD = dailySeries(googleRows, ["INVESTIMENTO", "RECEITA"]);
