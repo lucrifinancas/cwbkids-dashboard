@@ -25,15 +25,15 @@ export default async function handler(req, res) {
     return res.status(200).json({ steps });
   }
 
-  // 4. Tenta ler uma aba
+  // 4. Lê cabeçalhos da aba NUVEMSHOP
   try {
     const token = await getAccessToken(email, privateKey, "https://www.googleapis.com/auth/spreadsheets.readonly");
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent("GOOGLE ADS - CAMPANHAS!A1:C5")}?valueRenderOption=UNFORMATTED_VALUE`;
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent("NUVEMSHOP!A1:Z3")}?valueRenderOption=UNFORMATTED_VALUE`;
     const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    const body = await resp.text();
-    steps.push({ step: "sheets_read", status: resp.status, body: body.slice(0, 300) });
+    const body = await resp.json();
+    steps.push({ step: "nuvemshop_headers", status: resp.status, rows: body.values || [] });
   } catch (err) {
-    steps.push({ step: "sheets_read", ok: false, error: String(err.message || err) });
+    steps.push({ step: "nuvemshop_headers", ok: false, error: String(err.message || err) });
   }
 
   res.status(200).json({ steps });
