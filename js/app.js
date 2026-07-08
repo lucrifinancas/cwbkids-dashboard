@@ -298,7 +298,14 @@ function renderGeral() {
   const metaRows    = applyDateFilter(DATA.metaCampanhas);
   const googleRows  = applyDateFilter(DATA.googleCampanhas);
   const marketRows  = applyDateFilter(DATA.marketplace);
-  const orgRows     = applyDateFilter(DATA.organico);
+  // Normaliza colunas da aba NUVEMSHOP (preenchida manualmente — cabeçalhos em Title Case)
+  const orgNorm     = DATA.organico.map((r) => ({
+    DATA:                     r["DATA"]                ?? r["Data"]                ?? "",
+    "PEDIDOS TOTAIS DA LOJA": r["Pedidos Totais Loja"] ?? r["PEDIDOS TOTAIS DA LOJA"] ?? "",
+    "RECEITA TOTAL DA LOJA":  r["Receita Total Loja"]  ?? r["RECEITA TOTAL DA LOJA"]  ?? "",
+    SESSÕES:                  r["Sessões"]              ?? r["SESSÕES"]              ?? "",
+  }));
+  const orgRows     = applyDateFilter(orgNorm);
   const orgSeries   = computeOrganicoSeries(orgRows, metaRows, googleRows);
 
   const k = consolidatedKpis([...metaRows, ...googleRows]);
