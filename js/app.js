@@ -486,7 +486,6 @@ function renderMarketplace() {
         return p > 0 ? fmtBRL(parseNum(r["RECEITA"]) / p) : "—";
       }
     },
-    { key: "OBSERVAÇÕES", label: "Obs.",          fmt: (v) => v || "" },
   ], rows);
 }
 
