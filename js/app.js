@@ -315,7 +315,7 @@ function renderGeral() {
     { label: "Compras — Todos os Canais", value: fmtNum(comprasTot) },
     { label: "Receita — Todos os Canais", value: fmtBRL(receitaTot) },
     { label: "Visitas à Loja",            value: fmtNum(orgSessoes) },
-    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? orgCompras / orgSessoes : 0) },
+    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? (k.compras + orgCompras) / orgSessoes : 0) },
     { label: "Pedidos Marketplace",       value: fmtNum(mkPedidos) },
   ]);
 
