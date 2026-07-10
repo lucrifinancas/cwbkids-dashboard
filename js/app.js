@@ -655,6 +655,11 @@ function setupDatePicker() {
     btn.addEventListener("click", () => {
       const p = btn.dataset.preset;
       if (p === "all") { dpFrom = null; dpTo = null; }
+      else if (p === "yesterday") {
+        const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        dpFrom = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 0, 0, 0);
+        dpTo   = new Date(y.getFullYear(), y.getMonth(), y.getDate(), 23, 59, 59);
+      }
       else {
         const days = +p;
         dpTo   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
