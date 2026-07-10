@@ -376,24 +376,28 @@ function renderMeta() {
   renderTrendChart("chart-meta-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
 
   renderFunnel("funnel-meta", [
-    { label: "Impressões",  value: sumBy(camp, "IMPRESSÕES") },
-    { label: "Cliques",     value: sumBy(camp, "CLIQUES") },
-    { label: "Page View",   value: sumBy(camp, "PAGE VIEW") },
-    { label: "Compras",     value: sumBy(camp, "COMPRAS") },
+    { label: "Impressões",        value: sumBy(camp, "IMPRESSÕES") },
+    { label: "Cliques",           value: sumBy(camp, "CLIQUES") },
+    { label: "Page View",         value: sumBy(camp, "PAGE VIEW") },
+    { label: "Add to Cart",       value: sumBy(camp, "ADD TO CART") },
+    { label: "Initiate Checkout", value: sumBy(camp, "INITIATE CHECKOUT") },
+    { label: "Compras",           value: sumBy(camp, "COMPRAS") },
   ]);
 
   renderTable("table-meta-campanhas", [
     { key: "CAMPANHA",      label: "Campanha",     fmt: (v, r) => displayName(r) },
     { key: "IMPRESSÕES",    label: "Impressões",   fmt: fmtNum },
-    { key: "CLIQUES",       label: "Cliques",      fmt: fmtNum },
-    { key: "PAGE VIEW",     label: "Page View",    fmt: fmtNum },
-    { key: "COMPRAS",       label: "Compras",      fmt: fmtNum },
-    { key: "CTR",           label: "CTR",          fmt: fmtPct },
-    { key: "CONNECT RATE",  label: "Connect Rate", fmt: fmtPct },
-    { key: "TAXA DE CONVERSÃO", label: "Tx. Conv.", fmt: fmtPct },
-    { key: "ROAS",          label: "ROAS",         fmt: fmtRatio },
-    { key: "CPA",           label: "CPA",          fmt: fmtBRL },
-    { key: "INVESTIMENTO",  label: "Investimento", fmt: fmtBRL },
+    { key: "CLIQUES",            label: "Cliques",           fmt: fmtNum },
+    { key: "PAGE VIEW",          label: "Page View",         fmt: fmtNum },
+    { key: "ADD TO CART",        label: "Add to Cart",       fmt: fmtNum },
+    { key: "INITIATE CHECKOUT",  label: "Init. Checkout",    fmt: fmtNum },
+    { key: "COMPRAS",            label: "Compras",           fmt: fmtNum },
+    { key: "CTR",                label: "CTR",               fmt: fmtPct },
+    { key: "CONNECT RATE",       label: "Connect Rate",      fmt: fmtPct },
+    { key: "TAXA DE CONVERSÃO",  label: "Tx. Conv.",         fmt: fmtPct },
+    { key: "ROAS",               label: "ROAS",              fmt: fmtRatio },
+    { key: "CPA",                label: "CPA",               fmt: fmtBRL },
+    { key: "INVESTIMENTO",       label: "Investimento",      fmt: fmtBRL },
   ], camp);
 
   renderTable("table-meta-conjuntos", [
@@ -449,16 +453,18 @@ function renderGoogle() {
     { key: "CAMPANHA",         label: "Campanha",       fmt: (v, r) => displayName(r) },
     { key: "OBJETIVO",         label: "Tipo",           fmt: (v) => v },
     { key: "IMPRESSÕES",       label: "Impressões",     fmt: fmtNum },
-    { key: "CLIQUES",          label: "Cliques",        fmt: fmtNum },
-    { key: "PAGE VIEW",        label: "Page View",      fmt: fmtNum },
-    { key: "COMPRAS",          label: "Compras",        fmt: fmtNum },
-    { key: "CTR",              label: "CTR",            fmt: fmtPct },
-    { key: "CONNECT RATE",     label: "Connect Rate",   fmt: fmtPct },
-    { key: "TAXA DE CONVERSÃO", label: "Tx. Conv.",     fmt: fmtPct },
-    { key: "PARCELA DE IMPRESSÕES", label: "Imp. Share", fmt: fmtPct },
-    { key: "ROAS",             label: "ROAS",           fmt: fmtRatio },
-    { key: "CPA",              label: "CPA",            fmt: fmtBRL },
-    { key: "INVESTIMENTO",     label: "Investimento",   fmt: fmtBRL },
+    { key: "CLIQUES",               label: "Cliques",        fmt: fmtNum },
+    { key: "PAGE VIEW",             label: "Page View",      fmt: fmtNum },
+    { key: "ADIÇÕES AO CARRINHO",   label: "Add to Cart",    fmt: fmtNum },
+    { key: "CHECKOUT INICIADO",     label: "Init. Checkout", fmt: fmtNum },
+    { key: "COMPRAS",               label: "Compras",        fmt: fmtNum },
+    { key: "CTR",                   label: "CTR",            fmt: fmtPct },
+    { key: "CONNECT RATE",          label: "Connect Rate",   fmt: fmtPct },
+    { key: "TAXA DE CONVERSÃO",     label: "Tx. Conv.",      fmt: fmtPct },
+    { key: "PARCELA DE IMPRESSÕES", label: "Imp. Share",     fmt: fmtPct },
+    { key: "ROAS",                  label: "ROAS",           fmt: fmtRatio },
+    { key: "CPA",                   label: "CPA",            fmt: fmtBRL },
+    { key: "INVESTIMENTO",          label: "Investimento",   fmt: fmtBRL },
   ], camp);
 
   renderTable("table-google-grupos", [
