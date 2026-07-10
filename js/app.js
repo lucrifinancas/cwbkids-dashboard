@@ -408,6 +408,33 @@ function renderGeral() {
     [sumBy(metaRows, "COMPRAS"), sumBy(googleRows, "COMPRAS"), orgCompras, mkPedidos],
     ["#0575f1", "#f6bf1d", "#22c55e", "#ff6300"]);
 
+  // Vendas por campanha (Meta + Google)
+  const vcMap = new Map();
+  [...metaRows, ...googleRows].forEach((r) => {
+    const name = displayName(r);
+    if (!name) return;
+    vcMap.set(name, (vcMap.get(name) || 0) + parseNum(r["COMPRAS"]));
+  });
+  const vcSorted = [...vcMap.entries()].sort((a, b) => b[1] - a[1]);
+  wrapCanvas("chart-geral-vendas-camp", 260);
+  upsertChart("chart-geral-vendas-camp", {
+    type: "bar",
+    data: {
+      labels: vcSorted.map(([name]) => name),
+      datasets: [{ label: "Compras", data: vcSorted.map(([, v]) => v),
+        backgroundColor: PALETTE.slice(0, vcSorted.length), borderWidth: 0, borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        datalabels: { anchor: "end", align: "top", formatter: (v) => fmtNum(v), font: { size: 11 } } },
+      scales: {
+        x: { ticks: { maxRotation: 25 } },
+        y: { ticks: { callback: (v) => fmtNum(v) } },
+      },
+    },
+  });
+
   const metaD   = dailySeries(metaRows,   ["INVESTIMENTO", "RECEITA"]);
   const googleD = dailySeries(googleRows, ["INVESTIMENTO", "RECEITA"]);
   const mkD     = dailySeries(marketRows, ["RECEITA"]);
@@ -494,6 +521,16 @@ function renderMeta() {
     { label: "Ticket Médio",   value: ticket ? fmtBRL(ticket) : "—" },
   ]);
 
+  // Investimento por campanha
+  const campInvestMap = new Map();
+  camp.forEach((r) => {
+    const name = displayName(r);
+    campInvestMap.set(name, (campInvestMap.get(name) || 0) + parseNum(r["INVESTIMENTO"]));
+  });
+  renderDoughnut("chart-meta-invest-camp",
+    [...campInvestMap.keys()],
+    [...campInvestMap.values()]);
+
   renderTopCreativos("top-criativos-meta", anun);
 
   renderTrendChart("chart-meta-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
@@ -560,6 +597,17 @@ function renderGoogle() {
     { label: "CPA",           value: fmtBRL(k.cpa) },
     { label: "CTR",           value: fmtPct(k.ctr) },
   ]);
+
+  // Investimento por campanha
+  const gInvestMap = new Map();
+  camp.forEach((r) => {
+    const name = displayName(r);
+    gInvestMap.set(name, (gInvestMap.get(name) || 0) + parseNum(r["INVESTIMENTO"]));
+  });
+  renderDoughnut("chart-google-invest-camp",
+    [...gInvestMap.keys()],
+    [...gInvestMap.values()],
+    ["#f6bf1d", "#48b8c9", "#ed4c81", "#22c55e"]);
 
   // Parcela de impressões (média ponderada por impressões)
   const isRows = camp.filter((r) => parseNum(r["PARCELA DE IMPRESSÕES"]) > 0);
