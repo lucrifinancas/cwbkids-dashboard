@@ -377,9 +377,6 @@ function renderGeral() {
 
   renderKpiBar("kpi-geral", [
     { label: "Investimento Total (pago)", value: fmtBRL(k.investimento) },
-    { label: "Receita Paga",              value: fmtBRL(paidReceita) },
-    { label: "Receita Orgânica",         value: fmtBRL(orgReceita) },
-    { label: "Receita Marketplace",       value: fmtBRL(mkReceita) },
     { label: "Compras — Todos os Canais", value: fmtNum(comprasTot) },
     { label: "ROAS (pago)",               value: k.investimento ? (paidReceita / k.investimento).toFixed(2) + "×" : "—" },
     { label: "CPA (pago)",                value: comprasTot ? fmtBRL(k.investimento / comprasTot) : "—" },
