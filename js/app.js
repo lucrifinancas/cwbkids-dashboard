@@ -418,6 +418,51 @@ function renderGeral() {
   renderTrendChart("chart-geral-evolucao", combined);
 }
 
+/* ---------------- Top 3 criativos por CTR ---------------- */
+function renderTopCreativos(containerId, anunRows) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  const map = new Map();
+  anunRows.forEach((r) => {
+    const name = r["ANÚNCIO"] || "";
+    if (!name) return;
+    if (!map.has(name)) map.set(name, { name, imp: 0, cli: 0, plays: 0, invest: 0 });
+    const b = map.get(name);
+    b.imp    += parseNum(r["IMPRESSÕES"]);
+    b.cli    += parseNum(r["CLIQUES"]);
+    b.plays  += parseNum(r["REPRODUÇÕES DE 3 SEG"]);
+    b.invest += parseNum(r["INVESTIMENTO"]);
+  });
+
+  const list = [...map.values()]
+    .filter((c) => c.imp >= 10)
+    .map((c) => ({ ...c, ctr: c.cli / c.imp, hookRate: c.plays / c.imp }))
+    .sort((a, b) => b.ctr - a.ctr)
+    .slice(0, 3);
+
+  if (!list.length) {
+    el.innerHTML = `<p class="empty-state">Sem dados de anúncios no período.</p>`;
+    return;
+  }
+
+  const ranks = ["1º lugar", "2º lugar", "3º lugar"];
+  el.innerHTML = list.map((c, i) => `
+    <div class="criativo-card">
+      <div class="criativo-rank">${ranks[i]}</div>
+      <div class="criativo-name">${c.name}</div>
+      <div class="criativo-ctr">${fmtPct(c.ctr)}</div>
+      <div class="criativo-ctr-label">CTR</div>
+      <div class="criativo-metrics">
+        <div class="criativo-metric"><span class="m-label">Impressões</span><span class="m-value">${fmtNum(c.imp)}</span></div>
+        <div class="criativo-metric"><span class="m-label">Cliques</span><span class="m-value">${fmtNum(c.cli)}</span></div>
+        <div class="criativo-metric"><span class="m-label">Hook Rate</span><span class="m-value">${fmtPct(c.hookRate)}</span></div>
+        <div class="criativo-metric"><span class="m-label">Investimento</span><span class="m-value">${fmtBRL(c.invest)}</span></div>
+      </div>
+    </div>
+  `).join("");
+}
+
 /* ---------------- Aba: Meta Ads ---------------- */
 function renderMeta() {
   const camp = applyDateFilter(DATA.metaCampanhas);
@@ -425,14 +470,25 @@ function renderMeta() {
   const anun = applyDateFilter(DATA.metaAnuncios);
   const k = consolidatedKpis(camp);
 
+  const pvTot  = sumBy(camp, "PAGE VIEW");
+  const txConv = pvTot ? k.compras / pvTot : 0;
+  const cpm    = k.impressoes ? (k.investimento / k.impressoes) * 1000 : 0;
+  const ticket = k.compras ? k.receita / k.compras : 0;
+
   renderKpiBar("kpi-meta", [
-    { label: "Investimento",  value: fmtBRL(k.investimento) },
-    { label: "Compras",       value: fmtNum(k.compras) },
-    { label: "Receita",       value: fmtBRL(k.receita) },
-    { label: "ROAS",          value: fmtRatio(k.roas) },
-    { label: "CPA",           value: fmtBRL(k.cpa) },
-    { label: "CTR",           value: fmtPct(k.ctr) },
+    { label: "Investimento",   value: fmtBRL(k.investimento) },
+    { label: "Compras",        value: fmtNum(k.compras) },
+    { label: "Receita",        value: fmtBRL(k.receita) },
+    { label: "ROAS",           value: fmtRatio(k.roas) },
+    { label: "CPA",            value: fmtBRL(k.cpa) },
+    { label: "CTR",            value: fmtPct(k.ctr) },
+    { label: "Tx. Conversão",  value: fmtPct(txConv) },
+    { label: "CPC",            value: fmtBRL(k.cpc) },
+    { label: "CPM",            value: fmtBRL(cpm) },
+    { label: "Ticket Médio",   value: ticket ? fmtBRL(ticket) : "—" },
   ]);
+
+  renderTopCreativos("top-criativos-meta", anun);
 
   renderTrendChart("chart-meta-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
 

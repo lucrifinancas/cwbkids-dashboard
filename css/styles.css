@@ -107,8 +107,25 @@ main { flex: 1; padding: 24px; }
 .kpi .delta.up { color: var(--color-success); }
 .kpi .delta.down { color: var(--color-danger); }
 
+/* ── KPI bar compacta (mais cards em linha única) ── */
+.kpi-bar--compact { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.kpi-bar--compact .kpi { padding: 14px 10px; }
+.kpi-bar--compact .kpi .value { font-size: 1.15rem; }
+
 /* ── Card grid ── */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+
+/* ── Top Criativos ── */
+.criativo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.criativo-card { background: var(--color-card); border-radius: var(--radius); padding: 20px; border: 1px solid var(--color-border); }
+.criativo-rank { font-size: 0.68rem; font-weight: 700; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.criativo-name { font-size: 0.83rem; font-weight: 600; margin-bottom: 14px; min-height: 2.6em; line-height: 1.35; word-break: break-word; }
+.criativo-ctr { font-size: 2rem; font-weight: 700; color: var(--color-primary); line-height: 1; }
+.criativo-ctr-label { font-size: 0.68rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; margin-bottom: 14px; }
+.criativo-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; border-top: 1px solid var(--color-border); padding-top: 14px; }
+.criativo-metric { display: flex; flex-direction: column; gap: 2px; }
+.criativo-metric .m-label { font-size: 0.67rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.criativo-metric .m-value { font-size: 0.88rem; font-weight: 600; }
 .card { background: var(--color-card); border-radius: var(--radius); padding: 22px; border: 1px solid var(--color-border); }
 .card .card-label { font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 .card .card-value { font-size: 1.3rem; font-weight: 700; margin-top: 6px; }
