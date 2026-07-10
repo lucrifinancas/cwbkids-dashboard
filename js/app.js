@@ -293,6 +293,58 @@ function setupTabs() {
   });
 }
 
+/* ---------------- Tabela comparativa por canal ---------------- */
+function renderCanalTable({ meta, google, organico, marketplace }) {
+  const wrap = document.getElementById("canal-table-wrap");
+  if (!wrap) return;
+  const safe       = (a, b) => (b ? a / b : 0);
+  const ticketFmt  = (rec, ped) => (ped ? fmtBRL(rec / ped) : "—");
+  const roasFmt    = (rec, inv) => (inv ? safe(rec, inv).toFixed(2) + "×" : "—");
+  const cpaFmt     = (inv, ped) => (ped ? fmtBRL(inv / ped) : "—");
+
+  const channels = [
+    { name: "Meta Ads",    paid: true,  ...meta },
+    { name: "Google Ads",  paid: true,  ...google },
+    { name: "Orgânico",   paid: false, ...organico },
+    { name: "Marketplace", paid: false, ...marketplace },
+  ];
+
+  const totalInvest  = meta.invest  + google.invest;
+  const totalReceita = meta.receita + google.receita + organico.receita + marketplace.receita;
+  const totalPedidos = meta.pedidos + google.pedidos + organico.pedidos + marketplace.pedidos;
+
+  const pct = (v) => (totalReceita ? fmtPct(v / totalReceita) : "—");
+
+  const thead = `<thead><tr>
+    <th>Canal</th><th>Investimento</th><th>Receita</th>
+    <th>Pedidos</th><th>Ticket Médio</th><th>ROAS</th><th>CPA</th><th>% Receita</th>
+  </tr></thead>`;
+
+  const bodyRows = channels.map((c) => `<tr>
+    <td>${c.name}</td>
+    <td>${c.invest !== null ? fmtBRL(c.invest) : "—"}</td>
+    <td>${fmtBRL(c.receita)}</td>
+    <td>${fmtNum(c.pedidos)}</td>
+    <td>${ticketFmt(c.receita, c.pedidos)}</td>
+    <td>${c.paid ? roasFmt(c.receita, c.invest) : "—"}</td>
+    <td>${c.paid ? cpaFmt(c.invest, c.pedidos) : "—"}</td>
+    <td>${pct(c.receita)}</td>
+  </tr>`).join("");
+
+  const tfoot = `<tfoot><tr>
+    <td><strong>Total</strong></td>
+    <td><strong>${fmtBRL(totalInvest)}</strong></td>
+    <td><strong>${fmtBRL(totalReceita)}</strong></td>
+    <td><strong>${fmtNum(totalPedidos)}</strong></td>
+    <td><strong>${ticketFmt(totalReceita, totalPedidos)}</strong></td>
+    <td><strong>${roasFmt(meta.receita + google.receita, totalInvest)}</strong></td>
+    <td><strong>${cpaFmt(totalInvest, totalPedidos)}</strong></td>
+    <td><strong>100%</strong></td>
+  </tr></tfoot>`;
+
+  wrap.innerHTML = `<table>${thead}<tbody>${bodyRows}</tbody>${tfoot}</table>`;
+}
+
 /* ---------------- Aba: Dados Gerais ---------------- */
 function renderGeral() {
   const metaRows    = applyDateFilter(DATA.metaCampanhas);
@@ -320,15 +372,27 @@ function renderGeral() {
   const nvReceita   = sumBy(orgRows, "RECEITA TOTAL DA LOJA");
   const comprasTot  = nvCompras + mkPedidos;
   const receitaTot  = nvReceita + mkReceita;
+  const paidReceita = k.receita;
+  const ticketMedio = comprasTot ? receitaTot / comprasTot : 0;
 
   renderKpiBar("kpi-geral", [
     { label: "Investimento Total (pago)", value: fmtBRL(k.investimento) },
+    { label: "Receita Paga",              value: fmtBRL(paidReceita) },
+    { label: "Receita Orgânica",         value: fmtBRL(orgReceita) },
+    { label: "Receita Marketplace",       value: fmtBRL(mkReceita) },
     { label: "Compras — Todos os Canais", value: fmtNum(comprasTot) },
-    { label: "Receita — Todos os Canais", value: fmtBRL(receitaTot) },
-    { label: "Visitas à Loja",            value: fmtNum(orgSessoes) },
+    { label: "ROAS (pago)",               value: k.investimento ? (paidReceita / k.investimento).toFixed(2) + "×" : "—" },
+    { label: "CPA (pago)",                value: comprasTot ? fmtBRL(k.investimento / comprasTot) : "—" },
+    { label: "Ticket Médio Geral",        value: comprasTot ? fmtBRL(ticketMedio) : "—" },
     { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? nvCompras / orgSessoes : 0) },
-    { label: "Pedidos Marketplace",       value: fmtNum(mkPedidos) },
   ]);
+
+  renderCanalTable({
+    meta:        { invest: sumBy(metaRows,   "INVESTIMENTO"), receita: sumBy(metaRows,   "RECEITA"), pedidos: sumBy(metaRows,   "COMPRAS") },
+    google:      { invest: sumBy(googleRows, "INVESTIMENTO"), receita: sumBy(googleRows, "RECEITA"), pedidos: sumBy(googleRows, "COMPRAS") },
+    organico:    { invest: null,                               receita: orgReceita,                   pedidos: orgCompras },
+    marketplace: { invest: null,                               receita: mkReceita,                    pedidos: mkPedidos },
+  });
 
   renderDoughnut("chart-geral-canal",
     ["Meta Ads", "Google Ads"],
