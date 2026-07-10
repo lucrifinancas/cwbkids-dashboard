@@ -7,6 +7,7 @@ const TABS = {
   metaAnuncios: "META ADS - ANÚNCIOS",
   googleCampanhas: "GOOGLE ADS - CAMPANHAS",
   googleGrupos: "GOOGLE ADS - GRUPOS DE ANÚNCIOS",
+  googleTermos: "GOOGLE ADS - TERMOS DE BUSCA",
   organico: "NUVEMSHOP",
   marketplace: "MARKETPLACE",
   insights: "INSIGHTS",

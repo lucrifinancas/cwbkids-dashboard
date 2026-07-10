@@ -121,15 +121,19 @@ function computeOrganicoSeries(organicoRows, metaRows, googleRows) {
 function renderKpiBar(containerId, items) {
   const el = document.getElementById(containerId);
   if (!el) return;
-  el.innerHTML = items.map((k) =>
-    `<div class="kpi">
+  el.innerHTML = items.map((k) => {
+    let deltaHtml = "";
+    if (k.delta != null) {
+      const isUp   = k.delta >= 0;
+      const isGood = k.lowGood ? !isUp : isUp;
+      deltaHtml = `<div class="delta ${isGood ? "up" : "down"}">${isUp ? "▲" : "▼"} ${Math.abs(k.delta * 100).toFixed(1)}% vs. período anterior</div>`;
+    }
+    return `<div class="kpi">
       <div class="label">${k.label}</div>
       <div class="value">${k.value}</div>
-      ${k.delta != null
-        ? `<div class="delta ${k.delta >= 0 ? "up" : "down"}">${k.delta >= 0 ? "▲" : "▼"} ${Math.abs(k.delta * 100).toFixed(1)}% vs. período anterior</div>`
-        : ""}
-    </div>`
-  ).join("");
+      ${deltaHtml}
+    </div>`;
+  }).join("");
 }
 
 /* ---------------- Render: tabela sortável ---------------- */
@@ -196,17 +200,21 @@ function wrapCanvas(canvasId, height) {
   wrap.appendChild(canvas);
 }
 
-function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receitaField = "RECEITA") {
+function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receitaField = "RECEITA", opts = {}) {
+  const label1   = opts.label1   || "Investimento (R$)";
+  const label2   = opts.label2   || "Receita (R$)";
+  const color1   = opts.color1   || "#e53e3e";
+  const fmtTick1 = opts.fmtTick1 || fmtBRL;
   wrapCanvas(canvasId, 260);
   upsertChart(canvasId, {
     type: "line",
     data: {
       labels: series.map((s) => s.date.toLocaleDateString("pt-BR")),
       datasets: [
-        { label: "Investimento (R$)", data: series.map((s) => parseNum(s[investField])),
-          yAxisID: "y", borderColor: "#e53e3e", backgroundColor: "#e53e3e20",
+        { label: label1, data: series.map((s) => parseNum(s[investField])),
+          yAxisID: "y", borderColor: color1, backgroundColor: color1 + "20",
           fill: true, tension: 0.3, pointRadius: 2, borderWidth: 2 },
-        { label: "Receita (R$)", data: series.map((s) => parseNum(s[receitaField]) || s.receita || 0),
+        { label: label2, data: series.map((s) => parseNum(s[receitaField]) || s.receita || 0),
           yAxisID: "y1", borderColor: "#22c55e", backgroundColor: "transparent",
           borderDash: [5, 3], tension: 0.3, pointRadius: 2, borderWidth: 2 },
       ],
@@ -216,10 +224,10 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receit
       plugins: { legend: { labels: { usePointStyle: true, pointStyle: "circle" } } },
       scales: {
         x: { ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 15 } },
-        y:  { position: "left",  title: { display: true, text: "Investimento (R$)" },
-               ticks: { callback: (v) => fmtBRL(v) } },
+        y:  { position: "left",  title: { display: true, text: label1 },
+               ticks: { callback: (v) => fmtTick1(v) } },
         y1: { position: "right", grid: { drawOnChartArea: false },
-               title: { display: true, text: "Receita (R$)" },
+               title: { display: true, text: label2 },
                ticks: { callback: (v) => fmtBRL(v) } },
       },
     },
@@ -483,8 +491,6 @@ function renderMeta() {
     { label: "CPA",            value: fmtBRL(k.cpa) },
     { label: "CTR",            value: fmtPct(k.ctr) },
     { label: "Tx. Conversão",  value: fmtPct(txConv) },
-    { label: "CPC",            value: fmtBRL(k.cpc) },
-    { label: "CPM",            value: fmtBRL(cpm) },
     { label: "Ticket Médio",   value: ticket ? fmtBRL(ticket) : "—" },
   ]);
 
@@ -555,6 +561,22 @@ function renderGoogle() {
     { label: "CTR",           value: fmtPct(k.ctr) },
   ]);
 
+  // Parcela de impressões (média ponderada por impressões)
+  const isRows = camp.filter((r) => parseNum(r["PARCELA DE IMPRESSÕES"]) > 0);
+  const totalImpIS = isRows.reduce((a, r) => a + parseNum(r["IMPRESSÕES"]), 0);
+  const wAvg = (field) => totalImpIS
+    ? isRows.reduce((a, r) => a + parseNum(r["IMPRESSÕES"]) * parseNum(r[field]), 0) / totalImpIS
+    : 0;
+  const wIS  = wAvg("PARCELA DE IMPRESSÕES");
+  const wISB = wAvg("PARC IMP PERDIDA POR ORÇAMENTO");
+  const wISR = wAvg("PARC IMP PERDIDA POR CLASSIFICAÇÃO");
+  const wISO = Math.max(0, 1 - wIS - wISB - wISR);
+  wrapCanvas("chart-google-impshare", 240);
+  renderDoughnut("chart-google-impshare",
+    ["Impressões Recebidas", "Perdido por Orçamento", "Perdido por Classificação", "Outros"],
+    [wIS, wISB, wISR, wISO],
+    ["#48b8c9", "#f59e0b", "#e53e3e", "#d1d5db"]);
+
   renderTrendChart("chart-google-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
 
   renderFunnel("funnel-google", [
@@ -593,6 +615,27 @@ function renderGoogle() {
     { key: "CPC",              label: "CPC",            fmt: fmtBRL },
     { key: "INVESTIMENTO",     label: "Investimento",   fmt: fmtBRL },
   ], grupos);
+
+  // Top 10 termos de busca por cliques
+  const termosRows = applyDateFilter(DATA.googleTermos || []);
+  const termoMap = new Map();
+  termosRows.forEach((r) => {
+    const t = r["TERMO"] || "";
+    if (!t) return;
+    if (!termoMap.has(t)) termoMap.set(t, { TERMO: t, imp: 0, cli: 0 });
+    termoMap.get(t).imp += parseNum(r["IMPRESSÕES"]);
+    termoMap.get(t).cli += parseNum(r["CLIQUES"]);
+  });
+  const topTermos = [...termoMap.values()]
+    .sort((a, b) => b.cli - a.cli)
+    .slice(0, 10)
+    .map((t) => ({ ...t, CTR: t.imp ? t.cli / t.imp : 0 }));
+  renderTable("table-google-termos", [
+    { key: "TERMO", label: "Termo de Busca", fmt: (v) => v },
+    { key: "imp",   label: "Impressões",     fmt: fmtNum },
+    { key: "CTR",   label: "CTR",            fmt: fmtPct },
+    { key: "cli",   label: "Cliques",        fmt: fmtNum },
+  ], topTermos);
 }
 
 /* ---------------- Aba: Marketplace ---------------- */
@@ -607,8 +650,14 @@ function renderMarketplace() {
     { label: "Pedidos",      value: fmtNum(pedidos) },
     { label: "Receita",      value: fmtBRL(receita) },
     { label: "Ticket Médio", value: fmtBRL(ticketMedio) },
-    { label: "Ticket Médio", value: fmtBRL(pedidos ? receita / pedidos : 0) },
   ]);
+
+  renderTrendChart(
+    "chart-marketplace-evolucao",
+    dailySeries(rows, ["PEDIDOS", "RECEITA"]),
+    "PEDIDOS", "RECEITA",
+    { label1: "Pedidos", color1: "#ff6300", fmtTick1: fmtNum }
+  );
 
   // Agrega pedidos e receita por marketplace
   const MK_COLORS = { "Mercado Livre": "#f6bf1d", "Amazon": "#146eb4", "Shopee": "#ee4d2d" };
@@ -666,6 +715,18 @@ function buildPeriodOptions(allRows, type) {
   return [...labels].sort().reverse();
 }
 
+function prevPeriodLabel(label, type) {
+  if (type === "semanal") {
+    const start = new Date(label.split(" a ")[0]);
+    start.setDate(start.getDate() - 7);
+    return weekLabel(start);
+  } else {
+    const [y, m] = label.split("-").map(Number);
+    const d = new Date(y, m - 2, 1);
+    return monthLabel(d);
+  }
+}
+
 function renderReport(type) {
   const selectId   = type === "semanal" ? "select-semana"    : "select-mes";
   const kpiId      = type === "semanal" ? "kpi-rel-semanal"  : "kpi-rel-mensal";
@@ -689,12 +750,17 @@ function renderReport(type) {
   const periodRows = period ? rowsInPeriod(allRows, period, type) : [];
   const k          = consolidatedKpis(periodRows);
 
+  const prevLabel  = period ? prevPeriodLabel(period, type) : "";
+  const prevRows   = prevLabel ? rowsInPeriod(allRows, prevLabel, type) : [];
+  const kp         = consolidatedKpis(prevRows);
+  const delta      = (curr, prev) => prev > 0 ? (curr - prev) / prev : null;
+
   renderKpiBar(kpiId, [
-    { label: "Investimento", value: fmtBRL(k.investimento) },
-    { label: "Compras",      value: fmtNum(k.compras) },
-    { label: "Receita",      value: fmtBRL(k.receita) },
-    { label: "ROAS",         value: fmtRatio(k.roas) },
-    { label: "CPA",          value: fmtBRL(k.cpa) },
+    { label: "Investimento", value: fmtBRL(k.investimento), delta: delta(k.investimento, kp.investimento), lowGood: true },
+    { label: "Compras",      value: fmtNum(k.compras),      delta: delta(k.compras,      kp.compras) },
+    { label: "Receita",      value: fmtBRL(k.receita),      delta: delta(k.receita,      kp.receita) },
+    { label: "ROAS",         value: fmtRatio(k.roas),       delta: delta(k.roas,         kp.roas) },
+    { label: "CPA",          value: fmtBRL(k.cpa),          delta: delta(k.cpa,          kp.cpa), lowGood: true },
   ]);
 
   renderTrendChart(chartId, dailySeries(periodRows, ["INVESTIMENTO", "RECEITA"]));
