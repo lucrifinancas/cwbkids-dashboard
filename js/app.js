@@ -126,9 +126,12 @@ function renderKpiBar(containerId, items) {
     if (k.delta != null) {
       const isUp   = k.delta >= 0;
       const isGood = k.lowGood ? !isUp : isUp;
-      deltaHtml = `<div class="delta ${isGood ? "up" : "down"}">${isUp ? "▲" : "▼"} ${Math.abs(k.delta * 100).toFixed(1)}% vs. período anterior</div>`;
+      deltaHtml = `<div class="delta ${isGood ? "up" : "down"}">${isUp ? "↑" : "↓"} ${Math.abs(k.delta * 100).toFixed(1)}%</div>`;
     }
+    const iconStyle = k.iconBg ? `style="background:${k.iconBg}"` : "";
+    const iconHtml  = k.icon ? `<div class="kpi-icon" ${iconStyle}>${k.icon}</div>` : "";
     return `<div class="kpi">
+      ${iconHtml}
       <div class="label">${k.label}</div>
       <div class="value">${k.value}</div>
       ${deltaHtml}
@@ -277,14 +280,26 @@ function renderInsights(containerId, insights) {
 }
 
 /* ---------------- Tabs ---------------- */
+const TAB_LABELS = {
+  geral:        "Visão Geral",
+  meta:         "Meta Ads",
+  google:       "Google Ads",
+  marketplace:  "Marketplace",
+  "rel-semanal": "Relatório Semanal",
+  "rel-mensal":  "Relatório Mensal",
+};
+
 function setupTabs() {
-  const buttons = document.querySelectorAll("#tabs button");
+  const buttons     = document.querySelectorAll("#tabs button");
+  const topbarTitle = document.getElementById("topbar-title");
+
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
       buttons.forEach((b) => b.classList.remove("active"));
       document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
       btn.classList.add("active");
       document.getElementById(`panel-${btn.dataset.tab}`).classList.add("active");
+      if (topbarTitle) topbarTitle.textContent = TAB_LABELS[btn.dataset.tab] || "";
       window.dispatchEvent(new Event("resize"));
     });
   });
@@ -384,12 +399,12 @@ function renderGeral() {
   const ticketMedio = comprasTot ? receitaTot / comprasTot : 0;
 
   renderKpiBar("kpi-geral", [
-    { label: "Investimento Total (pago)", value: fmtBRL(k.investimento) },
-    { label: "Compras — Todos os Canais", value: fmtNum(comprasTot) },
-    { label: "ROAS (pago)",               value: k.investimento ? (paidReceita / k.investimento).toFixed(2) + "×" : "—" },
-    { label: "CPA (pago)",                value: comprasTot ? fmtBRL(k.investimento / comprasTot) : "—" },
-    { label: "Ticket Médio Geral",        value: comprasTot ? fmtBRL(ticketMedio) : "—" },
-    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? nvCompras / orgSessoes : 0) },
+    { label: "Investimento (pago)",       value: fmtBRL(k.investimento),                                          icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras — Todos os Canais", value: fmtNum(comprasTot),                                              icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "ROAS (pago)",               value: k.investimento ? (paidReceita / k.investimento).toFixed(2) + "×" : "—", icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA (pago)",                value: comprasTot ? fmtBRL(k.investimento / comprasTot) : "—",          icon: "🎯", iconBg: "#fce4ec" },
+    { label: "Ticket Médio Geral",        value: comprasTot ? fmtBRL(ticketMedio) : "—",                          icon: "🏷️", iconBg: "#f3e5f5" },
+    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? nvCompras / orgSessoes : 0),                 icon: "📊", iconBg: "#e8eaf6" },
   ]);
 
   renderCanalTable({
@@ -511,14 +526,14 @@ function renderMeta() {
   const ticket = k.compras ? k.receita / k.compras : 0;
 
   renderKpiBar("kpi-meta", [
-    { label: "Investimento",   value: fmtBRL(k.investimento) },
-    { label: "Compras",        value: fmtNum(k.compras) },
-    { label: "Receita",        value: fmtBRL(k.receita) },
-    { label: "ROAS",           value: fmtRatio(k.roas) },
-    { label: "CPA",            value: fmtBRL(k.cpa) },
-    { label: "CTR",            value: fmtPct(k.ctr) },
-    { label: "Tx. Conversão",  value: fmtPct(txConv) },
-    { label: "Ticket Médio",   value: ticket ? fmtBRL(ticket) : "—" },
+    { label: "Investimento",  value: fmtBRL(k.investimento), icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras",       value: fmtNum(k.compras),      icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "Receita",       value: fmtBRL(k.receita),      icon: "📈", iconBg: "#e8f5e9" },
+    { label: "ROAS",          value: fmtRatio(k.roas),       icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA",           value: fmtBRL(k.cpa),          icon: "🎯", iconBg: "#fce4ec" },
+    { label: "CTR",           value: fmtPct(k.ctr),          icon: "👆", iconBg: "#e3f2fd" },
+    { label: "Tx. Conversão", value: fmtPct(txConv),         icon: "📊", iconBg: "#e8eaf6" },
+    { label: "Ticket Médio",  value: ticket ? fmtBRL(ticket) : "—", icon: "🏷️", iconBg: "#f3e5f5" },
   ]);
 
   // Investimento por campanha
@@ -590,12 +605,12 @@ function renderGoogle() {
   const k = consolidatedKpis(camp);
 
   renderKpiBar("kpi-google", [
-    { label: "Investimento",  value: fmtBRL(k.investimento) },
-    { label: "Compras",       value: fmtNum(k.compras) },
-    { label: "Receita",       value: fmtBRL(k.receita) },
-    { label: "ROAS",          value: fmtRatio(k.roas) },
-    { label: "CPA",           value: fmtBRL(k.cpa) },
-    { label: "CTR",           value: fmtPct(k.ctr) },
+    { label: "Investimento", value: fmtBRL(k.investimento), icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras",      value: fmtNum(k.compras),      icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "Receita",      value: fmtBRL(k.receita),      icon: "📈", iconBg: "#e8f5e9" },
+    { label: "ROAS",         value: fmtRatio(k.roas),       icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA",          value: fmtBRL(k.cpa),          icon: "🎯", iconBg: "#fce4ec" },
+    { label: "CTR",          value: fmtPct(k.ctr),          icon: "👆", iconBg: "#e3f2fd" },
   ]);
 
   // Investimento por campanha
@@ -695,9 +710,9 @@ function renderMarketplace() {
   const ticketMedio = pedidos > 0 ? receita / pedidos : 0;
 
   renderKpiBar("kpi-marketplace", [
-    { label: "Pedidos",      value: fmtNum(pedidos) },
-    { label: "Receita",      value: fmtBRL(receita) },
-    { label: "Ticket Médio", value: fmtBRL(ticketMedio) },
+    { label: "Pedidos",      value: fmtNum(pedidos),      icon: "📦", iconBg: "#fff3e0" },
+    { label: "Receita",      value: fmtBRL(receita),      icon: "📈", iconBg: "#e8f5e9" },
+    { label: "Ticket Médio", value: fmtBRL(ticketMedio),  icon: "🏷️", iconBg: "#f3e5f5" },
   ]);
 
   renderTrendChart(
@@ -804,11 +819,11 @@ function renderReport(type) {
   const delta      = (curr, prev) => prev > 0 ? (curr - prev) / prev : null;
 
   renderKpiBar(kpiId, [
-    { label: "Investimento", value: fmtBRL(k.investimento), delta: delta(k.investimento, kp.investimento), lowGood: true },
-    { label: "Compras",      value: fmtNum(k.compras),      delta: delta(k.compras,      kp.compras) },
-    { label: "Receita",      value: fmtBRL(k.receita),      delta: delta(k.receita,      kp.receita) },
-    { label: "ROAS",         value: fmtRatio(k.roas),       delta: delta(k.roas,         kp.roas) },
-    { label: "CPA",          value: fmtBRL(k.cpa),          delta: delta(k.cpa,          kp.cpa), lowGood: true },
+    { label: "Investimento", value: fmtBRL(k.investimento), delta: delta(k.investimento, kp.investimento), lowGood: true, icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras",      value: fmtNum(k.compras),      delta: delta(k.compras,      kp.compras),                    icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "Receita",      value: fmtBRL(k.receita),      delta: delta(k.receita,      kp.receita),                    icon: "📈", iconBg: "#e8f5e9" },
+    { label: "ROAS",         value: fmtRatio(k.roas),       delta: delta(k.roas,         kp.roas),                       icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA",          value: fmtBRL(k.cpa),          delta: delta(k.cpa,          kp.cpa), lowGood: true,          icon: "🎯", iconBg: "#fce4ec" },
   ]);
 
   renderTrendChart(chartId, dailySeries(periodRows, ["INVESTIMENTO", "RECEITA"]));
