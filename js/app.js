@@ -317,8 +317,8 @@ function setupTabs() {
 }
 
 /* ---------------- Tabela comparativa por canal ---------------- */
-function renderCanalTable({ meta, google, organico, marketplace }) {
-  const wrap = document.getElementById("canal-table-wrap");
+function renderCanalTable({ meta, google, organico, marketplace }, containerId = "canal-table-wrap") {
+  const wrap = document.getElementById(containerId);
   if (!wrap) return;
   const safe       = (a, b) => (b ? a / b : 0);
   const ticketFmt  = (rec, ped) => (ped ? fmtBRL(rec / ped) : "—");
@@ -797,11 +797,8 @@ function prevPeriodLabel(label, type) {
 }
 
 function renderReport(type) {
-  const selectId   = type === "semanal" ? "select-semana"    : "select-mes";
-  const kpiId      = type === "semanal" ? "kpi-rel-semanal"  : "kpi-rel-mensal";
-  const chartId    = type === "semanal" ? "chart-rel-semanal": "chart-rel-mensal";
-  const tableId    = type === "semanal" ? "table-rel-semanal": "table-rel-mensal";
-  const insightsId = type === "semanal" ? "insights-rel-semanal": "insights-rel-mensal";
+  const s          = type === "semanal" ? "semanal" : "mensal";
+  const selectId   = type === "semanal" ? "select-semana" : "select-mes";
 
   const allRows = [...DATA.metaCampanhas, ...DATA.googleCampanhas];
   const select  = document.getElementById(selectId);
@@ -815,27 +812,178 @@ function renderReport(type) {
     select.onchange = () => renderReport(type);
   }
 
-  const period     = select.value || options[0] || "";
-  const periodRows = period ? rowsInPeriod(allRows, period, type) : [];
-  const k          = consolidatedKpis(periodRows);
+  const period = select.value || options[0] || "";
+  const filter = (rows) => period ? rowsInPeriod(rows, period, type) : [];
+
+  const metaCamp   = filter(DATA.metaCampanhas);
+  const metaConj   = filter(DATA.metaConjuntos);
+  const metaAnun   = filter(DATA.metaAnuncios);
+  const googleCamp = filter(DATA.googleCampanhas);
+  const marketRows = filter(DATA.marketplace);
+  const orgNorm    = DATA.organico.map((r) => ({
+    DATA:                     r["DATA"]                ?? r["Data"]                ?? "",
+    "PEDIDOS TOTAIS DA LOJA": r["Pedidos Totais Loja"] ?? r["PEDIDOS TOTAIS DA LOJA"] ?? "",
+    "RECEITA TOTAL DA LOJA":  r["Receita Total Loja"]  ?? r["RECEITA TOTAL DA LOJA"]  ?? "",
+    SESSÕES:                  r["Sessões"]              ?? r["SESSÕES"]              ?? "",
+  }));
+  const orgRows    = filter(orgNorm);
+  const orgSeries  = computeOrganicoSeries(orgRows, metaCamp, googleCamp);
 
   const prevLabel  = period ? prevPeriodLabel(period, type) : "";
-  const prevRows   = prevLabel ? rowsInPeriod(allRows, prevLabel, type) : [];
-  const kp         = consolidatedKpis(prevRows);
+  const prevMeta   = prevLabel ? rowsInPeriod(DATA.metaCampanhas,   prevLabel, type) : [];
+  const prevGoogle = prevLabel ? rowsInPeriod(DATA.googleCampanhas, prevLabel, type) : [];
+  const kp         = consolidatedKpis([...prevMeta, ...prevGoogle]);
   const delta      = (curr, prev) => prev > 0 ? (curr - prev) / prev : null;
 
-  renderKpiBar(kpiId, [
-    { label: "Investimento", value: fmtBRL(k.investimento), delta: delta(k.investimento, kp.investimento), lowGood: true, icon: "💰", iconBg: "#fff8e1" },
-    { label: "Compras",      value: fmtNum(k.compras),      delta: delta(k.compras,      kp.compras),                    icon: "🛍️", iconBg: "#e8f5e9" },
-    { label: "Receita",      value: fmtBRL(k.receita),      delta: delta(k.receita,      kp.receita),                    icon: "📈", iconBg: "#e8f5e9" },
-    { label: "ROAS",         value: fmtRatio(k.roas),       delta: delta(k.roas,         kp.roas),                       icon: "⚡", iconBg: "#e3f6f9" },
-    { label: "CPA",          value: fmtBRL(k.cpa),          delta: delta(k.cpa,          kp.cpa), lowGood: true,          icon: "🎯", iconBg: "#fce4ec" },
+  // ── Visão Geral ──────────────────────────────────────────────────────────────
+  const kGeral     = consolidatedKpis([...metaCamp, ...googleCamp]);
+  const orgCompras = orgSeries.reduce((a, s) => a + s.compras, 0);
+  const orgReceita = orgSeries.reduce((a, s) => a + s.receita, 0);
+  const orgSessoes = orgSeries.reduce((a, s) => a + s.sessoes, 0);
+  const mkPedidos  = sumBy(marketRows, "PEDIDOS");
+  const mkReceita  = sumBy(marketRows, "RECEITA");
+  const nvCompras  = sumBy(orgRows, "PEDIDOS TOTAIS DA LOJA");
+  const nvReceita  = sumBy(orgRows, "RECEITA TOTAL DA LOJA");
+  const comprasTot = nvCompras + mkPedidos;
+  const receitaTot = nvReceita + mkReceita;
+  const paidReceita = kGeral.receita;
+  const ticketGeral = comprasTot ? receitaTot / comprasTot : 0;
+
+  renderKpiBar(`kpi-rel-${s}`, [
+    { label: "Investimento (pago)",       value: fmtBRL(kGeral.investimento), delta: delta(kGeral.investimento, kp.investimento), lowGood: true, icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras — Todos os Canais", value: fmtNum(comprasTot),                                                                               icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "ROAS (pago)",               value: kGeral.investimento ? (paidReceita / kGeral.investimento).toFixed(2) + "×" : "—", delta: delta(kGeral.roas, kp.roas), icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA (pago)",                value: comprasTot ? fmtBRL(kGeral.investimento / comprasTot) : "—", delta: delta(kGeral.cpa, kp.cpa), lowGood: true, icon: "🎯", iconBg: "#fce4ec" },
+    { label: "Ticket Médio Geral",        value: comprasTot ? fmtBRL(ticketGeral) : "—",                                                           icon: "🏷️", iconBg: "#f3e5f5" },
+    { label: "Taxa de Conversão da Loja", value: fmtPct(orgSessoes ? nvCompras / orgSessoes : 0),                                                   icon: "📊", iconBg: "#e8eaf6" },
   ]);
 
-  renderTrendChart(chartId, dailySeries(periodRows, ["INVESTIMENTO", "RECEITA"]));
+  renderCanalTable({
+    meta:        { invest: sumBy(metaCamp,   "INVESTIMENTO"), receita: sumBy(metaCamp,   "RECEITA"), pedidos: sumBy(metaCamp,   "COMPRAS") },
+    google:      { invest: sumBy(googleCamp, "INVESTIMENTO"), receita: sumBy(googleCamp, "RECEITA"), pedidos: sumBy(googleCamp, "COMPRAS") },
+    organico:    { invest: null, receita: orgReceita, pedidos: orgCompras },
+    marketplace: { invest: null, receita: mkReceita,  pedidos: mkPedidos  },
+  }, `canal-table-rel-${s}`);
 
+  // Evolução diária combinada
+  const metaD   = dailySeries(metaCamp,   ["INVESTIMENTO", "RECEITA"]);
+  const googleD = dailySeries(googleCamp, ["INVESTIMENTO", "RECEITA"]);
+  const mkD     = dailySeries(marketRows, ["RECEITA"]);
+  const dateKeys = [...new Set([...metaD, ...googleD, ...orgSeries, ...mkD].map((d) => isoDate(d.date)))].sort();
+  const combined = dateKeys.map((key) => {
+    const m  = metaD.find((d) => isoDate(d.date) === key);
+    const g  = googleD.find((d) => isoDate(d.date) === key);
+    const o  = orgSeries.find((d) => isoDate(d.date) === key);
+    const mk = mkD.find((d) => isoDate(d.date) === key);
+    return {
+      date:         new Date(key),
+      INVESTIMENTO: (m?.INVESTIMENTO || 0) + (g?.INVESTIMENTO || 0),
+      RECEITA:      (m?.RECEITA || 0) + (g?.RECEITA || 0) + (o?.receita || 0) + (mk?.RECEITA || 0),
+    };
+  });
+  renderTrendChart(`chart-rel-${s}-evolucao`, combined);
+
+  // ── Meta Ads ─────────────────────────────────────────────────────────────────
+  const kMeta      = consolidatedKpis(metaCamp);
+  const pvMeta     = sumBy(metaCamp, "PAGE VIEW");
+  const txConvMeta = pvMeta ? kMeta.compras / pvMeta : 0;
+  const ticketMeta = kMeta.compras ? kMeta.receita / kMeta.compras : 0;
+
+  renderKpiBar(`kpi-rel-${s}-meta`, [
+    { label: "Investimento",  value: fmtBRL(kMeta.investimento),           icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras",       value: fmtNum(kMeta.compras),                icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "Receita",       value: fmtBRL(kMeta.receita),                icon: "📈", iconBg: "#e8f5e9" },
+    { label: "ROAS",          value: fmtRatio(kMeta.roas),                 icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA",           value: fmtBRL(kMeta.cpa),                    icon: "🎯", iconBg: "#fce4ec" },
+    { label: "CTR",           value: fmtPct(kMeta.ctr),                    icon: "👆", iconBg: "#e3f2fd" },
+    { label: "Tx. Conversão", value: fmtPct(txConvMeta),                   icon: "📊", iconBg: "#e8eaf6" },
+    { label: "Ticket Médio",  value: ticketMeta ? fmtBRL(ticketMeta) : "—", icon: "🏷️", iconBg: "#f3e5f5" },
+  ]);
+
+  const campInvestMap = new Map();
+  metaCamp.forEach((r) => {
+    const name = displayName(r);
+    campInvestMap.set(name, (campInvestMap.get(name) || 0) + parseNum(r["INVESTIMENTO"]));
+  });
+  renderDoughnut(`chart-rel-${s}-meta-invest`, [...campInvestMap.keys()], [...campInvestMap.values()]);
+
+  renderFunnel(`funnel-rel-${s}-meta`, [
+    { label: "Impressões",        value: sumBy(metaCamp, "IMPRESSÕES") },
+    { label: "Cliques",           value: sumBy(metaCamp, "CLIQUES") },
+    { label: "Page View",         value: sumBy(metaCamp, "PAGE VIEW") },
+    { label: "Add to Cart",       value: sumBy(metaCamp, "ADD TO CART") },
+    { label: "Initiate Checkout", value: sumBy(metaCamp, "INITIATE CHECKOUT") },
+    { label: "Compras",           value: sumBy(metaCamp, "COMPRAS") },
+  ]);
+
+  renderTopCreativos(`criativos-rel-${s}`, metaAnun);
+
+  // ── Google Ads ────────────────────────────────────────────────────────────────
+  const kGoogle      = consolidatedKpis(googleCamp);
+  const pvGoogle     = sumBy(googleCamp, "PAGE VIEW");
+  const txConvGoogle = pvGoogle ? kGoogle.compras / pvGoogle : 0;
+  const ticketGoogle = kGoogle.compras ? kGoogle.receita / kGoogle.compras : 0;
+
+  renderKpiBar(`kpi-rel-${s}-google`, [
+    { label: "Investimento",  value: fmtBRL(kGoogle.investimento),             icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras",       value: fmtNum(kGoogle.compras),                  icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "Receita",       value: fmtBRL(kGoogle.receita),                  icon: "📈", iconBg: "#e8f5e9" },
+    { label: "ROAS",          value: fmtRatio(kGoogle.roas),                   icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA",           value: fmtBRL(kGoogle.cpa),                      icon: "🎯", iconBg: "#fce4ec" },
+    { label: "CTR",           value: fmtPct(kGoogle.ctr),                      icon: "👆", iconBg: "#e3f2fd" },
+    { label: "Tx. Conversão", value: fmtPct(txConvGoogle),                     icon: "📊", iconBg: "#e8eaf6" },
+    { label: "Ticket Médio",  value: ticketGoogle ? fmtBRL(ticketGoogle) : "—", icon: "🏷️", iconBg: "#f3e5f5" },
+  ]);
+
+  renderFunnel(`funnel-rel-${s}-google`, [
+    { label: "Impressões",          value: sumBy(googleCamp, "IMPRESSÕES") },
+    { label: "Cliques",             value: sumBy(googleCamp, "CLIQUES") },
+    { label: "Page View",           value: sumBy(googleCamp, "PAGE VIEW") },
+    { label: "Adições ao Carrinho", value: sumBy(googleCamp, "ADIÇÕES AO CARRINHO") },
+    { label: "Checkout Iniciado",   value: sumBy(googleCamp, "CHECKOUT INICIADO") },
+    { label: "Compras",             value: sumBy(googleCamp, "COMPRAS") },
+  ]);
+
+  const termosRows = filter(DATA.googleTermos || []);
+  const termoMap = new Map();
+  termosRows.forEach((r) => {
+    const t = r["TERMO"] || "";
+    if (!t) return;
+    if (!termoMap.has(t)) termoMap.set(t, { TERMO: t, imp: 0, cli: 0 });
+    termoMap.get(t).imp += parseNum(r["IMPRESSÕES"]);
+    termoMap.get(t).cli += parseNum(r["CLIQUES"]);
+  });
+  const topTermos = [...termoMap.values()]
+    .sort((a, b) => b.cli - a.cli).slice(0, 10)
+    .map((t) => ({ ...t, CTR: t.imp ? t.cli / t.imp : 0 }));
+  renderTable(`table-rel-${s}-termos`, [
+    { key: "TERMO", label: "Termo de Busca", fmt: (v) => v },
+    { key: "imp",   label: "Impressões",     fmt: fmtNum },
+    { key: "CTR",   label: "CTR",            fmt: fmtPct },
+    { key: "cli",   label: "Cliques",        fmt: fmtNum },
+  ], topTermos);
+
+  // ── Marketplace ───────────────────────────────────────────────────────────────
+  const mkPed2   = sumBy(marketRows, "PEDIDOS");
+  const mkRec2   = sumBy(marketRows, "RECEITA");
+  const mkTicket = mkPed2 > 0 ? mkRec2 / mkPed2 : 0;
+
+  renderKpiBar(`kpi-rel-${s}-marketplace`, [
+    { label: "Pedidos",      value: fmtNum(mkPed2),   icon: "📦", iconBg: "#fff3e0" },
+    { label: "Receita",      value: fmtBRL(mkRec2),   icon: "📈", iconBg: "#e8f5e9" },
+    { label: "Ticket Médio", value: fmtBRL(mkTicket), icon: "🏷️", iconBg: "#f3e5f5" },
+  ]);
+
+  renderTrendChart(
+    `chart-rel-${s}-marketplace`,
+    dailySeries(marketRows, ["PEDIDOS", "RECEITA"]),
+    "PEDIDOS", "RECEITA",
+    { label1: "Pedidos", color1: "#ff6300", fmtTick1: fmtNum }
+  );
+
+  // ── Top Campanhas ─────────────────────────────────────────────────────────────
   const byCamp = new Map();
-  periodRows.forEach((r) => {
+  [...metaCamp, ...googleCamp].forEach((r) => {
     const key = r["CAMPANHA"] || "(sem nome)";
     if (!byCamp.has(key)) byCamp.set(key, { CAMPANHA: key, "NOME DE EXIBIÇÃO NO DASHBOARD": r["NOME DE EXIBIÇÃO NO DASHBOARD"] || "", INVESTIMENTO: 0, COMPRAS: 0, RECEITA: 0 });
     const b = byCamp.get(key);
@@ -843,19 +991,20 @@ function renderReport(type) {
     b.COMPRAS      += parseNum(r["COMPRAS"]);
     b.RECEITA      += parseNum(r["RECEITA"]);
   });
-  renderTable(tableId, [
+  renderTable(`table-rel-${s}`, [
     { key: "CAMPANHA",     label: "Campanha",     fmt: (v, r) => displayName(r) },
     { key: "COMPRAS",      label: "Compras",      fmt: fmtNum },
     { key: "RECEITA",      label: "Receita",      fmt: fmtBRL },
     { key: "INVESTIMENTO", label: "Investimento", fmt: fmtBRL },
   ], [...byCamp.values()]);
 
+  // ── Insights ──────────────────────────────────────────────────────────────────
   const insightPeriodField = ["Período", "PERÍODO"].find((f) => DATA.insights[0]?.[f] !== undefined) || "Período";
   const insightTypeField   = ["Tipo",    "TIPO"   ].find((f) => DATA.insights[0]?.[f] !== undefined) || "Tipo";
   const insights = (DATA.insights || []).filter(
     (i) => i[insightTypeField] === type && i[insightPeriodField] === period
   );
-  renderInsights(insightsId, insights);
+  renderInsights(`insights-rel-${s}`, insights);
 }
 
 function renderAll() {
