@@ -49,20 +49,24 @@ a { color: inherit; }
 }
 
 .sidebar-brand {
-  padding: 18px 16px 16px;
+  padding: 16px 14px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
 }
 .brand-icon {
   flex-shrink: 0;
-  opacity: 0.92;
+  display: flex;
+  align-items: center;
 }
 .sidebar-brand img {
-  width: 100%;
-  max-width: 90px;
+  max-width: 86px;
+  width: auto;
+  height: 40px;
+  object-fit: contain;
   display: block;
 }
 
@@ -116,23 +120,23 @@ a { color: inherit; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 28px;
   height: 58px; flex-shrink: 0;
-  background: var(--color-card);
-  border-bottom: 1px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
+  background: var(--color-sidebar);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   position: sticky; top: 0; z-index: 10;
 }
 .topbar-title {
-  font-size: 1.05rem; font-weight: 700; color: var(--color-text);
+  font-size: 1.05rem; font-weight: 700; color: #fff;
 }
 .topbar-right { display: flex; align-items: center; gap: 12px; }
 .topbar-logout {
-  background: transparent; border: 1px solid var(--color-border);
-  color: var(--color-muted); border-radius: 8px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.75); border-radius: 8px;
   padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer;
   transition: all 0.15s;
 }
 .topbar-logout:hover {
-  color: var(--color-text); border-color: var(--color-primary);
+  color: #fff; border-color: rgba(255,255,255,0.6);
 }
 
 main { flex: 1; padding: 28px; }
