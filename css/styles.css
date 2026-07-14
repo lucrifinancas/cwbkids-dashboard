@@ -49,23 +49,16 @@ a { color: inherit; }
 }
 
 .sidebar-brand {
-  padding: 16px 14px;
+  padding: 20px 16px;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-}
-.brand-icon {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
 }
 .sidebar-brand img {
-  width: auto;
-  height: 28px;
-  object-fit: contain;
+  width: 100%;
+  max-width: 150px;
   display: block;
 }
 
