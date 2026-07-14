@@ -604,13 +604,19 @@ function renderGoogle() {
   const grupos = applyDateFilter(DATA.googleGrupos);
   const k = consolidatedKpis(camp);
 
+  const pvTot  = sumBy(camp, "PAGE VIEW");
+  const txConv = pvTot ? k.compras / pvTot : 0;
+  const ticket = k.compras ? k.receita / k.compras : 0;
+
   renderKpiBar("kpi-google", [
-    { label: "Investimento", value: fmtBRL(k.investimento), icon: "💰", iconBg: "#fff8e1" },
-    { label: "Compras",      value: fmtNum(k.compras),      icon: "🛍️", iconBg: "#e8f5e9" },
-    { label: "Receita",      value: fmtBRL(k.receita),      icon: "📈", iconBg: "#e8f5e9" },
-    { label: "ROAS",         value: fmtRatio(k.roas),       icon: "⚡", iconBg: "#e3f6f9" },
-    { label: "CPA",          value: fmtBRL(k.cpa),          icon: "🎯", iconBg: "#fce4ec" },
-    { label: "CTR",          value: fmtPct(k.ctr),          icon: "👆", iconBg: "#e3f2fd" },
+    { label: "Investimento",  value: fmtBRL(k.investimento),        icon: "💰", iconBg: "#fff8e1" },
+    { label: "Compras",       value: fmtNum(k.compras),             icon: "🛍️", iconBg: "#e8f5e9" },
+    { label: "Receita",       value: fmtBRL(k.receita),             icon: "📈", iconBg: "#e8f5e9" },
+    { label: "ROAS",          value: fmtRatio(k.roas),              icon: "⚡", iconBg: "#e3f6f9" },
+    { label: "CPA",           value: fmtBRL(k.cpa),                 icon: "🎯", iconBg: "#fce4ec" },
+    { label: "CTR",           value: fmtPct(k.ctr),                 icon: "👆", iconBg: "#e3f2fd" },
+    { label: "Tx. Conversão", value: fmtPct(txConv),                icon: "📊", iconBg: "#e8eaf6" },
+    { label: "Ticket Médio",  value: ticket ? fmtBRL(ticket) : "—", icon: "🏷️", iconBg: "#f3e5f5" },
   ]);
 
   // Investimento por campanha
