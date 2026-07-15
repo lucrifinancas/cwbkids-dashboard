@@ -237,12 +237,25 @@ function renderTrendChart(canvasId, series, investField = "INVESTIMENTO", receit
   });
 }
 
-function renderDoughnut(canvasId, labels, values, colors) {
+function renderDoughnut(canvasId, labels, values, colors, fmt) {
+  const tooltipFmt = fmt || fmtNum;
   upsertChart(canvasId, {
     type: "doughnut",
     data: { labels, datasets: [{ data: values, backgroundColor: colors || PALETTE.slice(0, labels.length), borderWidth: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, cutout: "55%",
-               plugins: { legend: { position: "bottom", labels: { usePointStyle: true, pointStyle: "circle" } } } },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: "55%",
+      plugins: {
+        legend: { position: "bottom", labels: { usePointStyle: true, pointStyle: "circle" } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.parsed;
+              return ` ${ctx.label}: ${tooltipFmt(v)}`;
+            },
+          },
+        },
+      },
+    },
   });
 }
 
@@ -417,11 +430,11 @@ function renderGeral() {
   renderDoughnut("chart-geral-canal",
     ["Meta Ads", "Google Ads"],
     [sumBy(metaRows, "INVESTIMENTO"), sumBy(googleRows, "INVESTIMENTO")],
-    ["#0575f1", "#f6bf1d"]);
+    ["#0575f1", "#f6bf1d"], fmtBRL);
   renderDoughnut("chart-geral-compras",
     ["Meta Ads", "Google Ads", "Orgânico", "Marketplace"],
     [sumBy(metaRows, "COMPRAS"), sumBy(googleRows, "COMPRAS"), orgCompras, mkPedidos],
-    ["#0575f1", "#f6bf1d", "#22c55e", "#ff6300"]);
+    ["#0575f1", "#f6bf1d", "#22c55e", "#ff6300"], fmtNum);
 
   // Vendas por campanha (Meta + Google)
   const vcMap = new Map();
@@ -544,7 +557,7 @@ function renderMeta() {
   });
   renderDoughnut("chart-meta-invest-camp",
     [...campInvestMap.keys()],
-    [...campInvestMap.values()]);
+    [...campInvestMap.values()], undefined, fmtBRL);
 
   renderTopCreativos("top-criativos-meta", anun);
 
@@ -628,7 +641,7 @@ function renderGoogle() {
   renderDoughnut("chart-google-invest-camp",
     [...gInvestMap.keys()],
     [...gInvestMap.values()],
-    ["#f6bf1d", "#48b8c9", "#ed4c81", "#22c55e"]);
+    ["#f6bf1d", "#48b8c9", "#ed4c81", "#22c55e"], fmtBRL);
 
   // Parcela de impressões (média ponderada por impressões)
   const isRows = camp.filter((r) => parseNum(r["PARCELA DE IMPRESSÕES"]) > 0);
@@ -644,7 +657,7 @@ function renderGoogle() {
   renderDoughnut("chart-google-impshare",
     ["Impressões Recebidas", "Perdido por Orçamento", "Perdido por Classificação", "Outros"],
     [wIS, wISB, wISR, wISO],
-    ["#48b8c9", "#f59e0b", "#e53e3e", "#d1d5db"]);
+    ["#48b8c9", "#f59e0b", "#e53e3e", "#d1d5db"], fmtPct);
 
   renderTrendChart("chart-google-tendencia", dailySeries(camp, ["INVESTIMENTO", "RECEITA"]));
 
@@ -740,8 +753,8 @@ function renderMarketplace() {
   });
   const mkLabels  = [...byChannel.keys()];
   const mkColors  = mkLabels.map((n) => MK_COLORS[n] || "#aaa");
-  renderDoughnut("chart-marketplace-pedidos", mkLabels, mkLabels.map((n) => byChannel.get(n).pedidos), mkColors);
-  renderDoughnut("chart-marketplace-receita",  mkLabels, mkLabels.map((n) => byChannel.get(n).receita),  mkColors);
+  renderDoughnut("chart-marketplace-pedidos", mkLabels, mkLabels.map((n) => byChannel.get(n).pedidos), mkColors, fmtNum);
+  renderDoughnut("chart-marketplace-receita",  mkLabels, mkLabels.map((n) => byChannel.get(n).receita),  mkColors, fmtBRL);
 
   renderTable("table-marketplace", [
     { key: "DATA",        label: "Data",         fmt: (v) => { const d = parseDateBR(v); return d ? d.toLocaleDateString("pt-BR") : v; } },
@@ -865,6 +878,42 @@ function renderReport(type) {
     marketplace: { invest: null, receita: mkReceita,  pedidos: mkPedidos  },
   }, `canal-table-rel-${s}`);
 
+  renderDoughnut(`chart-rel-${s}-canal`,
+    ["Meta Ads", "Google Ads"],
+    [sumBy(metaCamp, "INVESTIMENTO"), sumBy(googleCamp, "INVESTIMENTO")],
+    ["#0575f1", "#f6bf1d"], fmtBRL);
+  renderDoughnut(`chart-rel-${s}-compras`,
+    ["Meta Ads", "Google Ads", "Orgânico", "Marketplace"],
+    [sumBy(metaCamp, "COMPRAS"), sumBy(googleCamp, "COMPRAS"), orgCompras, mkPedidos],
+    ["#0575f1", "#f6bf1d", "#22c55e", "#ff6300"], fmtNum);
+
+  // Vendas por campanha (barra)
+  const vcMapR = new Map();
+  [...metaCamp, ...googleCamp].forEach((r) => {
+    const name = displayName(r);
+    if (!name) return;
+    vcMapR.set(name, (vcMapR.get(name) || 0) + parseNum(r["COMPRAS"]));
+  });
+  const vcSortedR = [...vcMapR.entries()].sort((a, b) => b[1] - a[1]);
+  wrapCanvas(`chart-rel-${s}-vendas-camp`, 260);
+  upsertChart(`chart-rel-${s}-vendas-camp`, {
+    type: "bar",
+    data: {
+      labels: vcSortedR.map(([name]) => name),
+      datasets: [{ label: "Compras", data: vcSortedR.map(([, v]) => v),
+        backgroundColor: PALETTE.slice(0, vcSortedR.length), borderWidth: 0, borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false },
+        datalabels: { anchor: "end", align: "top", formatter: (v) => fmtNum(v), font: { size: 11 } } },
+      scales: {
+        x: { ticks: { maxRotation: 25 } },
+        y: { ticks: { callback: (v) => fmtNum(v) } },
+      },
+    },
+  });
+
   // Evolução diária combinada
   const metaD   = dailySeries(metaCamp,   ["INVESTIMENTO", "RECEITA"]);
   const googleD = dailySeries(googleCamp, ["INVESTIMENTO", "RECEITA"]);
@@ -905,7 +954,9 @@ function renderReport(type) {
     const name = displayName(r);
     campInvestMap.set(name, (campInvestMap.get(name) || 0) + parseNum(r["INVESTIMENTO"]));
   });
-  renderDoughnut(`chart-rel-${s}-meta-invest`, [...campInvestMap.keys()], [...campInvestMap.values()]);
+  renderDoughnut(`chart-rel-${s}-meta-invest`, [...campInvestMap.keys()], [...campInvestMap.values()], undefined, fmtBRL);
+
+  renderTrendChart(`chart-rel-${s}-meta-tend`, dailySeries(metaCamp, ["INVESTIMENTO", "RECEITA"]));
 
   renderFunnel(`funnel-rel-${s}-meta`, [
     { label: "Impressões",        value: sumBy(metaCamp, "IMPRESSÕES") },
@@ -934,6 +985,33 @@ function renderReport(type) {
     { label: "Tx. Conversão", value: fmtPct(txConvGoogle),                     icon: "📊", iconBg: "#e8eaf6" },
     { label: "Ticket Médio",  value: ticketGoogle ? fmtBRL(ticketGoogle) : "—", icon: "🏷️", iconBg: "#f3e5f5" },
   ]);
+
+  // Google: invest por campanha
+  const gInvestMapR = new Map();
+  googleCamp.forEach((r) => {
+    const name = displayName(r);
+    gInvestMapR.set(name, (gInvestMapR.get(name) || 0) + parseNum(r["INVESTIMENTO"]));
+  });
+  renderDoughnut(`chart-rel-${s}-google-invest`,
+    [...gInvestMapR.keys()], [...gInvestMapR.values()],
+    ["#f6bf1d", "#48b8c9", "#ed4c81", "#22c55e"], fmtBRL);
+
+  // Parcela de impressões
+  const isRowsR = googleCamp.filter((r) => parseNum(r["PARCELA DE IMPRESSÕES"]) > 0);
+  const totImpR = isRowsR.reduce((a, r) => a + parseNum(r["IMPRESSÕES"]), 0);
+  const wAvgR = (field) => totImpR
+    ? isRowsR.reduce((a, r) => a + parseNum(r["IMPRESSÕES"]) * parseNum(r[field]), 0) / totImpR : 0;
+  const wISR2  = wAvgR("PARCELA DE IMPRESSÕES");
+  const wISBR  = wAvgR("PARC IMP PERDIDA POR ORÇAMENTO");
+  const wISRR  = wAvgR("PARC IMP PERDIDA POR CLASSIFICAÇÃO");
+  const wISOr  = Math.max(0, 1 - wISR2 - wISBR - wISRR);
+  wrapCanvas(`chart-rel-${s}-google-imp`, 240);
+  renderDoughnut(`chart-rel-${s}-google-imp`,
+    ["Impressões Recebidas", "Perdido por Orçamento", "Perdido por Classificação", "Outros"],
+    [wISR2, wISBR, wISRR, wISOr],
+    ["#48b8c9", "#f59e0b", "#e53e3e", "#d1d5db"], fmtPct);
+
+  renderTrendChart(`chart-rel-${s}-google-tend`, dailySeries(googleCamp, ["INVESTIMENTO", "RECEITA"]));
 
   renderFunnel(`funnel-rel-${s}-google`, [
     { label: "Impressões",          value: sumBy(googleCamp, "IMPRESSÕES") },
@@ -980,6 +1058,29 @@ function renderReport(type) {
     "PEDIDOS", "RECEITA",
     { label1: "Pedidos", color1: "#ff6300", fmtTick1: fmtNum }
   );
+
+  // Marketplace: doughnuts e tabela por canal
+  const MK_COLORS_R = { "Mercado Livre": "#f6bf1d", "Amazon": "#146eb4", "Shopee": "#ee4d2d" };
+  const byChannelR = new Map();
+  marketRows.forEach((r) => {
+    const name = String(r["MARKETPLACE"] || "").trim();
+    if (!name) return;
+    if (!byChannelR.has(name)) byChannelR.set(name, { pedidos: 0, receita: 0 });
+    byChannelR.get(name).pedidos += parseNum(r["PEDIDOS"]);
+    byChannelR.get(name).receita += parseNum(r["RECEITA"]);
+  });
+  const mkLabelsR = [...byChannelR.keys()];
+  const mkColorsR = mkLabelsR.map((n) => MK_COLORS_R[n] || "#aaa");
+  renderDoughnut(`chart-rel-${s}-mkt-pedidos`, mkLabelsR, mkLabelsR.map((n) => byChannelR.get(n).pedidos), mkColorsR, fmtNum);
+  renderDoughnut(`chart-rel-${s}-mkt-receita`, mkLabelsR, mkLabelsR.map((n) => byChannelR.get(n).receita), mkColorsR, fmtBRL);
+
+  renderTable(`table-rel-${s}-marketplace`, [
+    { key: "DATA",        label: "Data",         fmt: (v) => { const d = parseDateBR(v); return d ? d.toLocaleDateString("pt-BR") : v; } },
+    { key: "MARKETPLACE", label: "Marketplace",  fmt: (v) => v },
+    { key: "PEDIDOS",     label: "Pedidos",       fmt: fmtNum },
+    { key: "RECEITA",     label: "Receita",       fmt: fmtBRL },
+    { key: "_ticket",     label: "Ticket Médio",  fmt: (_, r) => { const p = parseNum(r["PEDIDOS"]); return p > 0 ? fmtBRL(parseNum(r["RECEITA"]) / p) : "—"; } },
+  ], marketRows);
 
   // ── Top Campanhas ─────────────────────────────────────────────────────────────
   const byCamp = new Map();

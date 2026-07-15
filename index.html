@@ -184,6 +184,13 @@
           <div class="kpi-bar" id="kpi-rel-semanal"></div>
           <h2 class="section-title">Comparativo por Canal</h2>
           <div class="table-wrap" id="canal-table-rel-semanal"></div>
+          <h2 class="section-title">Investimento por Canal</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Investimento por Canal</h3><canvas id="chart-rel-semanal-canal"></canvas></div>
+            <div class="chart-card"><h3>Compras por Canal</h3><canvas id="chart-rel-semanal-compras"></canvas></div>
+          </div>
+          <h2 class="section-title">Vendas por Campanha</h2>
+          <div class="chart-full"><canvas id="chart-rel-semanal-vendas-camp"></canvas></div>
           <h2 class="section-title">Evolução Diária</h2>
           <div class="chart-full"><canvas id="chart-rel-semanal-evolucao"></canvas></div>
           <h2 class="section-title">Top Campanhas</h2>
@@ -193,9 +200,12 @@
         <div class="report-section" id="rs-meta" style="display:none">
           <h2 class="section-title">Meta Ads</h2>
           <div class="kpi-bar kpi-bar--compact" id="kpi-rel-semanal-meta"></div>
-          <div class="chart-grid" style="margin-top:16px">
-            <div class="chart-card"><h3>Investimento por Campanha</h3><canvas id="chart-rel-semanal-meta-invest"></canvas></div>
+          <h2 class="section-title">Investimento por Campanha</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Distribuição</h3><canvas id="chart-rel-semanal-meta-invest"></canvas></div>
           </div>
+          <h2 class="section-title">Tendência</h2>
+          <div class="chart-full"><h3>Investimento e Receita por dia</h3><canvas id="chart-rel-semanal-meta-tend"></canvas></div>
           <h2 class="section-title">Funil Meta Ads</h2>
           <div class="funnel" id="funnel-rel-semanal-meta"></div>
           <h2 class="section-title">Top 3 Criativos por CTR</h2>
@@ -205,6 +215,13 @@
         <div class="report-section" id="rs-google" style="display:none">
           <h2 class="section-title">Google Ads</h2>
           <div class="kpi-bar kpi-bar--compact" id="kpi-rel-semanal-google"></div>
+          <h2 class="section-title">Investimento e Impressões</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Investimento por Campanha</h3><canvas id="chart-rel-semanal-google-invest"></canvas></div>
+            <div class="chart-card"><h3>Parcela de Impressões (média do período)</h3><canvas id="chart-rel-semanal-google-imp"></canvas></div>
+          </div>
+          <h2 class="section-title">Tendência</h2>
+          <div class="chart-full"><h3>Investimento e Receita por dia</h3><canvas id="chart-rel-semanal-google-tend"></canvas></div>
           <h2 class="section-title">Funil Google Ads</h2>
           <div class="funnel" id="funnel-rel-semanal-google"></div>
           <h2 class="section-title">Top 10 Termos de Busca</h2>
@@ -214,7 +231,15 @@
         <div class="report-section" id="rs-marketplace" style="display:none">
           <h2 class="section-title">Marketplace</h2>
           <div class="kpi-bar" id="kpi-rel-semanal-marketplace"></div>
-          <div class="chart-full" style="margin-top:16px"><canvas id="chart-rel-semanal-marketplace"></canvas></div>
+          <h2 class="section-title">Evolução Diária</h2>
+          <div class="chart-full"><h3>Pedidos e Receita por dia</h3><canvas id="chart-rel-semanal-marketplace"></canvas></div>
+          <h2 class="section-title">Pedidos por Marketplace</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Pedidos por Canal</h3><canvas id="chart-rel-semanal-mkt-pedidos"></canvas></div>
+            <div class="chart-card"><h3>Receita por Canal</h3><canvas id="chart-rel-semanal-mkt-receita"></canvas></div>
+          </div>
+          <h2 class="section-title">Vendas por Marketplace</h2>
+          <div class="table-wrap"><table id="table-rel-semanal-marketplace"><thead></thead><tbody></tbody></table></div>
         </div>
 
         <div class="report-section" id="rs-insights" style="display:none">
@@ -241,6 +266,13 @@
           <div class="kpi-bar" id="kpi-rel-mensal"></div>
           <h2 class="section-title">Comparativo por Canal</h2>
           <div class="table-wrap" id="canal-table-rel-mensal"></div>
+          <h2 class="section-title">Investimento por Canal</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Investimento por Canal</h3><canvas id="chart-rel-mensal-canal"></canvas></div>
+            <div class="chart-card"><h3>Compras por Canal</h3><canvas id="chart-rel-mensal-compras"></canvas></div>
+          </div>
+          <h2 class="section-title">Vendas por Campanha</h2>
+          <div class="chart-full"><canvas id="chart-rel-mensal-vendas-camp"></canvas></div>
           <h2 class="section-title">Evolução Diária</h2>
           <div class="chart-full"><canvas id="chart-rel-mensal-evolucao"></canvas></div>
           <h2 class="section-title">Top Campanhas</h2>
@@ -250,9 +282,12 @@
         <div class="report-section" id="rm-meta" style="display:none">
           <h2 class="section-title">Meta Ads</h2>
           <div class="kpi-bar kpi-bar--compact" id="kpi-rel-mensal-meta"></div>
-          <div class="chart-grid" style="margin-top:16px">
-            <div class="chart-card"><h3>Investimento por Campanha</h3><canvas id="chart-rel-mensal-meta-invest"></canvas></div>
+          <h2 class="section-title">Investimento por Campanha</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Distribuição</h3><canvas id="chart-rel-mensal-meta-invest"></canvas></div>
           </div>
+          <h2 class="section-title">Tendência</h2>
+          <div class="chart-full"><h3>Investimento e Receita por dia</h3><canvas id="chart-rel-mensal-meta-tend"></canvas></div>
           <h2 class="section-title">Funil Meta Ads</h2>
           <div class="funnel" id="funnel-rel-mensal-meta"></div>
           <h2 class="section-title">Top 3 Criativos por CTR</h2>
@@ -262,6 +297,13 @@
         <div class="report-section" id="rm-google" style="display:none">
           <h2 class="section-title">Google Ads</h2>
           <div class="kpi-bar kpi-bar--compact" id="kpi-rel-mensal-google"></div>
+          <h2 class="section-title">Investimento e Impressões</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Investimento por Campanha</h3><canvas id="chart-rel-mensal-google-invest"></canvas></div>
+            <div class="chart-card"><h3>Parcela de Impressões (média do período)</h3><canvas id="chart-rel-mensal-google-imp"></canvas></div>
+          </div>
+          <h2 class="section-title">Tendência</h2>
+          <div class="chart-full"><h3>Investimento e Receita por dia</h3><canvas id="chart-rel-mensal-google-tend"></canvas></div>
           <h2 class="section-title">Funil Google Ads</h2>
           <div class="funnel" id="funnel-rel-mensal-google"></div>
           <h2 class="section-title">Top 10 Termos de Busca</h2>
@@ -271,7 +313,15 @@
         <div class="report-section" id="rm-marketplace" style="display:none">
           <h2 class="section-title">Marketplace</h2>
           <div class="kpi-bar" id="kpi-rel-mensal-marketplace"></div>
-          <div class="chart-full" style="margin-top:16px"><canvas id="chart-rel-mensal-marketplace"></canvas></div>
+          <h2 class="section-title">Evolução Diária</h2>
+          <div class="chart-full"><h3>Pedidos e Receita por dia</h3><canvas id="chart-rel-mensal-marketplace"></canvas></div>
+          <h2 class="section-title">Pedidos por Marketplace</h2>
+          <div class="chart-grid">
+            <div class="chart-card"><h3>Pedidos por Canal</h3><canvas id="chart-rel-mensal-mkt-pedidos"></canvas></div>
+            <div class="chart-card"><h3>Receita por Canal</h3><canvas id="chart-rel-mensal-mkt-receita"></canvas></div>
+          </div>
+          <h2 class="section-title">Vendas por Marketplace</h2>
+          <div class="table-wrap"><table id="table-rel-mensal-marketplace"><thead></thead><tbody></tbody></table></div>
         </div>
 
         <div class="report-section" id="rm-insights" style="display:none">
