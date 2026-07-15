@@ -1178,22 +1178,28 @@ function setupDatePicker() {
   document.querySelector(".dp-preset[data-preset='all']")?.classList.add("active");
 }
 
+/* ---------------- Filtros de seção nos relatórios ---------------- */
+function setupReportSectionTabs(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  panel.querySelectorAll(".rst-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      panel.querySelectorAll(".rst-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = btn.dataset.section;
+      panel.querySelectorAll(".report-section").forEach((s) => {
+        s.style.display = s.id === target ? "" : "none";
+      });
+    });
+  });
+}
+
 /* ---------------- Boot ---------------- */
 async function boot() {
   setupTabs();
   setupDatePicker();
-  document.getElementById("print-semanal")?.addEventListener("click", () => {
-    const sel = document.getElementById("select-semana");
-    const label = sel?.options[sel.selectedIndex]?.text || "Relatório Semanal";
-    document.querySelectorAll("#panel-rel-semanal .print-period").forEach(el => { el.textContent = label; });
-    window.print();
-  });
-  document.getElementById("print-mensal")?.addEventListener("click", () => {
-    const sel = document.getElementById("select-mes");
-    const label = sel?.options[sel.selectedIndex]?.text || "Relatório Mensal";
-    document.querySelectorAll("#panel-rel-mensal .print-period").forEach(el => { el.textContent = label; });
-    window.print();
-  });
+  setupReportSectionTabs("panel-rel-semanal");
+  setupReportSectionTabs("panel-rel-mensal");
 
   try {
     DATA = await fetchData();

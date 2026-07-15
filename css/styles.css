@@ -394,13 +394,29 @@ tfoot td { font-weight: 700; background: #f8fafc; }
 #dp-apply:hover { opacity: 0.88; }
 
 /* ── Filtro de período (relatórios) ── */
-.period-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-.period-bar select, .period-bar button {
+.period-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.period-bar select {
   background: var(--color-card); border: 1px solid var(--color-border); color: var(--color-text);
   border-radius: 8px; padding: 8px 14px; font-size: 0.85rem; box-shadow: var(--shadow-sm);
 }
-.period-bar button { cursor: pointer; transition: border-color 0.15s; }
-.period-bar button:hover { border-color: var(--color-primary); }
+
+/* ── Botões de seção nos relatórios ── */
+.report-section-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+.rst-btn {
+  background: var(--color-card);
+  border: 1.5px solid var(--color-border);
+  color: var(--color-muted);
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.rst-btn:hover { border-color: var(--color-primary); color: var(--color-text); }
+.rst-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
 
 .empty-state { color: var(--color-muted); font-size: 0.85rem; padding: 28px; text-align: center; }
 
