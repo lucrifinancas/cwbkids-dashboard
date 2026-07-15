@@ -46,12 +46,12 @@ export async function onRequest(context) {
         try {
           const rows = await getValues(sheetId, `${tab}!A1:AA10000`, env);
           return [key, rowsToObjects(rows)];
-        } catch {
-          return [key, []];
+        } catch (err) {
+          return [key, { _error: String(err.message || err) }];
         }
       })
     );
-    return json(Object.fromEntries(entries), 200, { "Cache-Control": "private, max-age=60" });
+    return json(Object.fromEntries(entries), 200, { "Cache-Control": "no-store" });
   } catch (err) {
     return json({ error: String(err.message || err) }, 502);
   }
