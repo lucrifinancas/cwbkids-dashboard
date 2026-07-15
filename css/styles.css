@@ -404,6 +404,11 @@ tfoot td { font-weight: 700; background: #f8fafc; }
 
 .empty-state { color: var(--color-muted); font-size: 0.85rem; padding: 28px; text-align: center; }
 
+/* ── Cabeçalho de impressão (oculto na tela) ── */
+.print-header { display: none; }
+.print-section-name { font-size: 1rem; font-weight: 800; color: rgba(255,255,255,0.92); }
+.print-period { font-size: 0.72rem; color: rgba(255,255,255,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.1em; }
+
 @media (max-width: 768px) {
   .layout-wrapper { flex-direction: column; }
   .sidebar { flex-direction: column; width: 100%; height: auto; position: static; }
@@ -419,10 +424,63 @@ tfoot td { font-weight: 700; background: #f8fafc; }
 }
 
 @media print {
-  .sidebar, .topbar, .dp-popup, .period-bar button, .detail-toggle { display: none !important; }
-  .content-area { display: block; }
-  body { background: #fff; color: #1c3a40; }
-  .kpi, .card, .chart-card, .chart-full, .table-wrap, table, .insight-card {
-    box-shadow: none !important; border: 1px solid #cce9ee;
+  /* ── Oculta interface de navegação ── */
+  .sidebar, .topbar, .dp-popup, .period-bar, .detail-toggle,
+  .detail-section { display: none !important; }
+
+  /* ── Layout ── */
+  @page { margin: 0; size: A4 portrait; }
+
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
+  html, body { background: var(--color-sidebar) !important; margin: 0 !important; padding: 0 !important; }
+  .layout-wrapper, .content-area, main { display: block !important; background: var(--color-sidebar) !important; padding: 0 !important; }
+
+  .tab-panel { display: none !important; }
+  .tab-panel.active { display: block !important; }
+
+  /* ── Páginas ── */
+  .print-page {
+    background: var(--color-sidebar) !important;
+    padding: 36px 44px;
+    page-break-after: always;
+    display: block !important;
+    position: relative;
+  }
+  .print-page:last-child { page-break-after: auto; }
+
+  /* ── Cabeçalho de impressão ── */
+  .print-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+    padding-bottom: 14px;
+    border-bottom: 1.5px solid rgba(255,255,255,0.25);
+  }
+  .print-header img {
+    height: 34px; width: auto;
+    filter: brightness(0) invert(1);
+  }
+  .print-header-info { text-align: right; }
+
+  /* ── Texto sobre fundo turquesa ── */
+  .section-title { color: rgba(255,255,255,0.65) !important; margin: 22px 0 12px !important; }
+  .print-header + .section-title,
+  .print-header ~ h2.section-title:first-of-type { margin-top: 0 !important; }
+
+  /* ── Cards: brancos sem sombra ── */
+  .kpi, .chart-card, .chart-full, .table-wrap, table,
+  .insight-card, .criativo-card, .card {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  th { background: #f8fafc !important; }
+  .chart-full { margin-top: 0 !important; }
+
+  /* ── Funil ── */
+  .funnel-bar-inner { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 }

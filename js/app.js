@@ -1182,8 +1182,18 @@ function setupDatePicker() {
 async function boot() {
   setupTabs();
   setupDatePicker();
-  document.getElementById("print-semanal")?.addEventListener("click", () => window.print());
-  document.getElementById("print-mensal")?.addEventListener("click",  () => window.print());
+  document.getElementById("print-semanal")?.addEventListener("click", () => {
+    const sel = document.getElementById("select-semana");
+    const label = sel?.options[sel.selectedIndex]?.text || "Relatório Semanal";
+    document.querySelectorAll("#panel-rel-semanal .print-period").forEach(el => { el.textContent = label; });
+    window.print();
+  });
+  document.getElementById("print-mensal")?.addEventListener("click", () => {
+    const sel = document.getElementById("select-mes");
+    const label = sel?.options[sel.selectedIndex]?.text || "Relatório Mensal";
+    document.querySelectorAll("#panel-rel-mensal .print-period").forEach(el => { el.textContent = label; });
+    window.print();
+  });
 
   try {
     DATA = await fetchData();
