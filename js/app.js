@@ -493,7 +493,7 @@ function renderTopCreativos(containerId, anunRows) {
     if (!map.has(name)) map.set(name, { name, imp: 0, cli: 0, plays: 0, invest: 0 });
     const b = map.get(name);
     b.imp    += parseNum(r["IMPRESSÕES"]);
-    b.cli    += parseNum(r["CLIQUES"]);
+    b.cli    += parseNum(r["CLIQUES NO LINK"]);
     b.plays  += parseNum(r["REPRODUÇÕES DE 3 SEG"]);
     b.invest += parseNum(r["INVESTIMENTO"]);
   });
@@ -580,7 +580,7 @@ function renderMeta() {
     { key: "ADD TO CART",        label: "Add to Cart",       fmt: fmtNum },
     { key: "INITIATE CHECKOUT",  label: "Init. Checkout",    fmt: fmtNum },
     { key: "COMPRAS",            label: "Compras",           fmt: fmtNum },
-    { key: "CTR",                label: "CTR",               fmt: fmtPct },
+    { key: "CTR (LINK)",         label: "CTR",               fmt: fmtPct },
     { key: "CONNECT RATE",       label: "Connect Rate",      fmt: fmtPct },
     { key: "TAXA DE CONVERSÃO",  label: "Tx. Conv.",         fmt: fmtPct },
     { key: "ROAS",               label: "ROAS",              fmt: fmtRatio },
@@ -593,19 +593,19 @@ function renderMeta() {
     { key: "CONJUNTO DE ANÚNCIO", label: "Conjunto",   fmt: (v) => v },
     { key: "IMPRESSÕES",        label: "Impressões",   fmt: fmtNum },
     { key: "ALCANCE",           label: "Alcance",      fmt: fmtNum },
-    { key: "CLIQUES",           label: "Cliques",      fmt: fmtNum },
+    { key: "CLIQUES NO LINK",   label: "Cliques",      fmt: fmtNum },
     { key: "FREQUÊNCIA",        label: "Frequência",   fmt: fmtRatio },
-    { key: "CTR",               label: "CTR",          fmt: fmtPct },
-    { key: "CPC",               label: "CPC",          fmt: fmtBRL },
+    { key: "CTR (LINK)",        label: "CTR",          fmt: fmtPct },
+    { key: "CPC (LINK)",        label: "CPC",          fmt: fmtBRL },
     { key: "INVESTIMENTO",      label: "Investimento", fmt: fmtBRL },
   ], conj);
 
   renderTable("table-meta-anuncios", [
     { key: "ANÚNCIO",             label: "Anúncio",    fmt: (v, r) => displayName(r, "ANÚNCIO") },
     { key: "IMPRESSÕES",          label: "Impressões", fmt: fmtNum },
-    { key: "CLIQUES",             label: "Cliques",    fmt: fmtNum },
+    { key: "CLIQUES NO LINK",     label: "Cliques",    fmt: fmtNum },
     { key: "REPRODUÇÕES DE 3 SEG", label: "3-seg",     fmt: fmtNum },
-    { key: "CTR",                 label: "CTR",        fmt: fmtPct },
+    { key: "CTR (LINK)",          label: "CTR",        fmt: fmtPct },
     { key: "HOOK RATE",           label: "Hook Rate",  fmt: fmtPct },
     { key: "INVESTIMENTO",        label: "Investimento", fmt: fmtBRL },
   ], anun);
