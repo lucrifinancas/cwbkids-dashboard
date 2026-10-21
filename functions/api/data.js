@@ -1,5 +1,7 @@
 import { verifySessionToken, COOKIE_NAME } from "../../lib/session.js";
 import { getValues, rowsToObjects } from "../../lib/sheets.js";
+import { metricRows, readMetricTable } from "../../lib/d1-reader.js";
+import { SCHEMA } from "../../lib/d1-schema.js";
 
 const TABS = {
   metaCampanhas: "META ADS - CAMPANHAS",
@@ -36,6 +38,22 @@ export async function onRequest(context) {
   const cookies = parseCookies(request.headers.get("Cookie") || "");
   const valid = await verifySessionToken(cookies[COOKIE_NAME], env.DASHBOARD_PASSWORD);
   if (!valid) return json({ error: "Não autenticado." }, 401);
+
+  if (env.METRICAS_DB) {
+    try {
+      const entries = await Promise.all(Object.entries(TABS).map(async ([key, tab]) => {
+        const spec = SCHEMA[tab];
+        if (!spec) return [key, []]; // INSIGHTS nao existe na base original.
+        return [key, metricRows(spec, await readMetricTable(env.METRICAS_DB, spec))];
+      }));
+      return json(Object.fromEntries(entries), 200, {
+        "Cache-Control": "private, max-age=60", "X-Metrics-Source": "cloudflare-d1"
+      });
+    } catch {
+      return json({ error: "Nao foi possivel ler as metricas do D1." }, 502);
+    }
+  }
+  if (env.METRICAS_BACKEND === "d1") return json({ error: "Binding METRICAS_DB ausente." }, 500);
 
   const sheetId = env.SHEETS_ID_CWBKIDS_METRICAS;
   if (!sheetId) return json({ error: "SHEETS_ID_CWBKIDS_METRICAS não configurado." }, 500);
